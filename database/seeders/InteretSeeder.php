@@ -10,18 +10,15 @@ class InteretSeeder extends Seeder
     public function run(): void
     {
         $interets = [
-            'Arts' => ['Musique', 'Peinture', 'Photographie', 'Cuisine', 'Dessin', 'Sculpture', 'Danse', 'Théâtre'],
-            'Sports' => ['Course', 'Soccer', 'Vélo', 'Natation', 'Basketball', 'Volleyball', 'Hockey', 'Tennis'],
-            'Jeux de société' => ['Jeux de cartes', 'Jeux de plateau', 'Jeux de rôle', 'Puzzles', 'Échecs'],
-            'Gaming' => ['Jeux vidéo', 'Jeux en ligne', 'Jeux mobiles', 'Esports', 'Rétrogaming'],
-            'Technologie' => ['Programmation', 'Intelligence artificielle', 'Robotique', 'Design web'],
-            'Nature' => ['Randonnée', 'Camping', 'Jardinage', 'Astronomie'],
-            'Lecture' => ['Romans', 'Manga', 'Bandes dessinées', 'Science-fiction', 'Fantasy'],
+            'Arts' => ['Musique', 'Peinture', 'Photographie', 'Cuisine'],
+            'Sports' => ['Course', 'Soccer', 'Velo'],
+            'Jeux de societe' => ['Jeux de cartes', 'Jeux de plateau', 'Jeux de role'],
+            'Gaming' => ['Gaming', 'Jeux video', 'Esports'],
         ];
 
         foreach ($interets as $categorie => $noms) {
             foreach ($noms as $nom) {
-                Interet::firstOrCreate(
+                Interet::updateOrCreate(
                     ['nom' => $nom],
                     ['categorie' => $categorie]
                 );

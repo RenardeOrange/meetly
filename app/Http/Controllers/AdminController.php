@@ -19,21 +19,19 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats'));
     }
 
-    // ── Users ──
-
     public function users(Request $request)
     {
         $query = User::query();
 
         if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenom', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $query->where(function ($nested) use ($search) {
+                $nested->where('nom', 'like', "%{$search}%")
+                    ->orWhere('prenom', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->get();
+        $users = $query->orderByDesc('created_at')->get();
 
         return view('admin.users', compact('users'));
     }
@@ -49,7 +47,7 @@ class AdminController extends Controller
 
         $user->update($request->only('nom', 'prenom', 'role', 'position'));
 
-        return redirect()->route('admin.users')->with('success', 'Utilisateur mis à jour.');
+        return redirect()->route('admin.users')->with('success', 'Utilisateur mis a jour.');
     }
 
     public function deleteUser(User $user)
@@ -60,23 +58,33 @@ class AdminController extends Controller
 
         $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Utilisateur supprimé.');
+        return redirect()->route('admin.users')->with('success', 'Utilisateur supprime.');
     }
 
     public function toggleBlacklist(User $user)
     {
-        $user->update(['blacklisted' => !$user->blacklisted]);
-        $status = $user->blacklisted ? 'blacklisté' : 'débloqué';
+        $user->update([
+            'blacklisted' => !$user->blacklisted,
+        ]);
+
+        $status = $user->blacklisted ? 'blackliste' : 'debloque';
 
         return redirect()->route('admin.users')->with('success', "Utilisateur {$status}.");
     }
 
-    // ── Interests ──
-
     public function interets()
     {
-        $interets = Interet::orderBy('categorie')->orderBy('nom')->get()->groupBy('categorie');
-        $categories = Interet::distinct()->pluck('categorie')->sort()->values();
+        $interets = Interet::query()
+            ->orderBy('categorie')
+            ->orderBy('nom')
+            ->get()
+            ->groupBy('categorie');
+
+        $categories = Interet::query()
+            ->select('categorie')
+            ->distinct()
+            ->orderBy('categorie')
+            ->pluck('categorie');
 
         return view('admin.interets', compact('interets', 'categories'));
     }
@@ -90,7 +98,7 @@ class AdminController extends Controller
 
         Interet::create($request->only('nom', 'categorie'));
 
-        return redirect()->route('admin.interets')->with('success', 'Intérêt ajouté.');
+        return redirect()->route('admin.interets')->with('success', 'Interet ajoute.');
     }
 
     public function updateInteret(Request $request, Interet $interet)
@@ -102,7 +110,7 @@ class AdminController extends Controller
 
         $interet->update($request->only('nom', 'categorie'));
 
-        return redirect()->route('admin.interets')->with('success', 'Intérêt mis à jour.');
+        return redirect()->route('admin.interets')->with('success', 'Interet mis a jour.');
     }
 
     public function deleteInteret(Interet $interet)
@@ -110,6 +118,6 @@ class AdminController extends Controller
         $interet->users()->detach();
         $interet->delete();
 
-        return redirect()->route('admin.interets')->with('success', 'Intérêt supprimé.');
+        return redirect()->route('admin.interets')->with('success', 'Interet supprime.');
     }
 }

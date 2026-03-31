@@ -11,39 +11,64 @@ class InteretController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $userInteretIds = $user->interets()->pluck('interets.id')->toArray();
+        $userInteretIds = $user->interets()->pluck('interets.id')->all();
+        $search = trim((string) $request->get('search', ''));
+        $selectedCategorie = $request->get('categorie', '');
 
         $query = Interet::query();
 
-        if ($search = $request->get('search')) {
+        if ($search !== '') {
             $query->where('nom', 'like', "%{$search}%");
         }
 
-        if ($categorie = $request->get('categorie')) {
-            $query->where('categorie', $categorie);
+        if ($selectedCategorie !== '') {
+            $query->where('categorie', $selectedCategorie);
         }
 
-        $interets = $query->orderBy('categorie')->orderBy('nom')->get()->groupBy('categorie');
-        $categories = Interet::distinct()->pluck('categorie')->sort()->values();
+        $interets = $query
+            ->orderBy('categorie')
+            ->orderBy('nom')
+            ->get()
+            ->groupBy('categorie');
 
-        return view('interests.index', compact('interets', 'categories', 'userInteretIds'));
+        $categories = Interet::query()
+            ->select('categorie')
+            ->distinct()
+            ->orderBy('categorie')
+            ->pluck('categorie');
+
+        return view('interests.index', [
+            'interets' => $interets,
+            'categories' => $categories,
+            'userInteretIds' => $userInteretIds,
+            'search' => $search,
+            'selectedCategorie' => $selectedCategorie,
+        ]);
     }
 
     public function toggle(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'interet_id' => 'required|exists:interets,id',
         ]);
 
         $user = Auth::user();
-        $interetId = $request->interet_id;
+        $interetId = (int) $validated['interet_id'];
 
         if ($user->interets()->where('interets.id', $interetId)->exists()) {
             $user->interets()->detach($interetId);
-            return response()->json(['status' => 'removed']);
+            $status = 'removed';
+            $message = 'Interet retire de votre profil.';
+        } else {
+            $user->interets()->syncWithoutDetaching([$interetId]);
+            $status = 'added';
+            $message = 'Interet ajoute a votre profil.';
         }
 
-        $user->interets()->attach($interetId);
-        return response()->json(['status' => 'added']);
+        if ($request->expectsJson()) {
+            return response()->json(['status' => $status]);
+        }
+
+        return back()->with('success', $message);
     }
 }
