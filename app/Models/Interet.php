@@ -11,6 +11,7 @@ class Interet extends Model
 
     protected $fillable = [
         'nom',
+        'categorie',
     ];
 
     public function users(): BelongsToMany

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:\\\\Users\\\\Utilisateur\\\\Documents\\\\GitHub\\\\meetly\" log --oneline -20)"
+    ]
+  }
+}
