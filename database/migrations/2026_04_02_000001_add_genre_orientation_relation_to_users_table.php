@@ -9,16 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('genre', ['homme', 'femme', 'non-binaire', 'autre'])->nullable()->after('numero_programme');
-            $table->enum('orientation', ['heterosexuel', 'homosexuel', 'bisexuel', 'pansexuel', 'autre'])->nullable()->after('genre');
-            $table->json('type_relation')->nullable()->after('orientation');
+            $table->json('type_connexion')->nullable()->after('numero_programme');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['genre', 'orientation', 'type_relation']);
+            $table->dropColumn('type_connexion');
         });
     }
 };

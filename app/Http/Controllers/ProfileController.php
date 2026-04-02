@@ -34,10 +34,8 @@ class ProfileController extends Controller
             'bio'              => 'nullable|string|max:200',
             'visibilite'       => 'required|in:public,prive',
             'avatar'           => 'nullable|image|max:2048',
-            'genre'            => 'nullable|in:homme,femme,non-binaire,autre',
-            'orientation'      => 'nullable|in:heterosexuel,homosexuel,bisexuel,pansexuel,autre',
-            'type_relation'    => 'nullable|array',
-            'type_relation.*'  => 'in:amitie,romantique_serieux,romantique_casual,activites',
+            'type_connexion'   => 'nullable|array',
+            'type_connexion.*' => 'in:amitie,activites,etudes,sorties,gaming',
         ]);
 
         if ($request->hasFile('avatar')) {

@@ -29,7 +29,7 @@
     .badge-active { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); }
     .badge-admin { background: rgba(241,196,15,0.2); color: #f1c40f; border: 1px solid rgba(241,196,15,0.4); }
     .badge-interests { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); }
-    .update-form { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)) auto; gap: 0.65rem; align-items: center; margin-bottom: 0.75rem; }
+    .update-form { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)) auto; gap: 0.65rem; align-items: center; margin-bottom: 0.75rem; }
     .update-form input, .update-form select { width: 100%; padding: 0.7rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.12); color: #fff; font-family: 'Poppins', sans-serif; outline: none; }
     .update-form select option { color: #222; }
     .update-form button { border: none; border-radius: 999px; padding: 0.7rem 1.1rem; font-weight: 700; cursor: pointer; background: #fff; color: #c0392b; font-family: 'Poppins', sans-serif; white-space: nowrap; }
@@ -40,8 +40,7 @@
     .action-btn-delete { background: rgba(231,76,60,0.28); color: #fff; }
     .stats-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
     .stat-chip { padding: 0.4rem 1rem; border-radius: 999px; background: rgba(255,255,255,0.1); color: #fff; font-size: 0.82rem; font-weight: 600; }
-    @media (max-width: 1200px) { .update-form { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    @media (max-width: 700px) { .update-form { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 980px) { .update-form { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 480px) { .update-form { grid-template-columns: 1fr; } }
 </style>
 @endsection
@@ -92,12 +91,6 @@
                             <span class="badge badge-admin">Admin</span>
                         @endif
                         <span class="badge badge-interests">{{ $user->interets->count() }} interet(s)</span>
-                        @if ($user->genre)
-                            <span class="badge badge-interests">{{ ucfirst($user->genre) }}</span>
-                        @endif
-                        @if ($user->orientation)
-                            <span class="badge badge-interests">{{ ucfirst($user->orientation) }}</span>
-                        @endif
                         @if ($user->email_verified_at)
                             <span class="badge badge-active">Courriel verifie</span>
                         @else
@@ -117,21 +110,6 @@
                         <select name="position" required>
                             <option value="etudiant" {{ $user->position === 'etudiant' ? 'selected' : '' }}>Etudiant</option>
                             <option value="personnel" {{ $user->position === 'personnel' ? 'selected' : '' }}>Personnel</option>
-                        </select>
-                        <select name="genre">
-                            <option value="" {{ !$user->genre ? 'selected' : '' }}>Genre —</option>
-                            <option value="homme" {{ $user->genre === 'homme' ? 'selected' : '' }}>Homme</option>
-                            <option value="femme" {{ $user->genre === 'femme' ? 'selected' : '' }}>Femme</option>
-                            <option value="non-binaire" {{ $user->genre === 'non-binaire' ? 'selected' : '' }}>Non-binaire</option>
-                            <option value="autre" {{ $user->genre === 'autre' ? 'selected' : '' }}>Autre</option>
-                        </select>
-                        <select name="orientation">
-                            <option value="" {{ !$user->orientation ? 'selected' : '' }}>Orientation —</option>
-                            <option value="heterosexuel" {{ $user->orientation === 'heterosexuel' ? 'selected' : '' }}>Heterosexuel(le)</option>
-                            <option value="homosexuel" {{ $user->orientation === 'homosexuel' ? 'selected' : '' }}>Homosexuel(le)</option>
-                            <option value="bisexuel" {{ $user->orientation === 'bisexuel' ? 'selected' : '' }}>Bisexuel(le)</option>
-                            <option value="pansexuel" {{ $user->orientation === 'pansexuel' ? 'selected' : '' }}>Pansexuel(le)</option>
-                            <option value="autre" {{ $user->orientation === 'autre' ? 'selected' : '' }}>Autre</option>
                         </select>
                         <button type="submit">Modifier</button>
                     </form>

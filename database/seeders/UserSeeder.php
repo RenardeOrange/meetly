@@ -38,26 +38,26 @@ class UserSeeder extends Seeder
         ];
 
         $bios = [
-            'Passionne(e) de technologie et amateur(trice) de cafe.',
-            'Toujours en quete de nouvelles aventures et de nouvelles rencontres.',
-            'Amateur(trice) de plein air et de jeux de societe.',
-            'Musicien(ne) le soir, etudiant(e) le jour.',
-            'Fan de cinema et de bonne cuisine.',
-            'Sportif(ve) dans l\'ame, toujours pret(e) pour un defi.',
-            'Lecteur(trice) avide et curieux(se) de tout.',
-            'Creatif(ve) et passionne(e) d\'art sous toutes ses formes.',
-            'Geek fier(re) et joueur(se) de jeux video.',
-            'Amoureux(se) de la nature et de la randonnee.',
-            'Cuisinier(e) amateur(trice) qui aime partager ses recettes.',
-            'Toujours a la recherche de nouvelles experiences culturelles.',
-            'Developpeur(se) web le jour, gamer la nuit.',
-            'Yogiste et meditatif(ve) dans mes temps libres.',
-            'Passionne(e) par la psychologie et le bien-etre.',
-            'J\'aime la photographie et les sorties en nature.',
-            'Fan de manga et de jeux de role autour d\'une table.',
-            'Je cherche des gens avec qui partager mes passions.',
-            'Etudiant(e) serieux(se) qui sait aussi s\'amuser.',
-            'Curieux(se) de tout, je collectionne les hobbies.',
+            'Passionne(e) de technologie et toujours partant(e) pour de nouveaux projets.',
+            'J\'adore le plein air et cherche des gens pour faire des activites ensemble.',
+            'Amateur(trice) de jeux de societe et de bonne compagnie.',
+            'Musicien(ne) a mes heures, j\'aime partager ma passion.',
+            'Fan de cinema et de cuisine, toujours pret(e) pour une sortie.',
+            'Sportif(ve) dans l\'ame, cherche des partenaires d\'entrainement.',
+            'Lecteur(trice) avide et curieux(se) de tout, j\'aime les discussions profondes.',
+            'Creatif(ve) et passionne(e) d\'art, je cherche d\'autres artistes.',
+            'Gamer convaincu(e), cherche des co-equipiers pour jouer ensemble.',
+            'Amoureux(se) de la nature, randonnee et camping sont mes activites preferees.',
+            'Cuisinier(e) amateur(trice), j\'adore tester de nouvelles recettes.',
+            'Toujours a la recherche de nouvelles experiences et de nouvelles rencontres.',
+            'Developpeur(se) web passionn(e) par les nouvelles technologies.',
+            'Zen et curieux(se), j\'aime le yoga et la meditation.',
+            'Etudiant(e) serieux(se) qui cherche aussi a s\'amuser et decouvrir.',
+            'J\'aime la photo et les sorties culturelles — musees, expos, concerts.',
+            'Fan de manga et de jeux de role, cherche des joueurs.',
+            'Toujours partant(e) pour un match de soccer ou une partie de basketball.',
+            'Amateur(trice) de musique electronique et de concerts.',
+            'Je collectionne les hobbies et les nouvelles experiences.',
         ];
 
         $programmes = [
@@ -79,78 +79,66 @@ class UserSeeder extends Seeder
             'Mathematiques',
             'Physique',
             'Chimie',
+            'Techniques de travail social',
+            'Communication',
         ];
 
-        // Orientation distribution: ~75% hetero, ~8% homo, ~12% bi, ~3% pan, ~2% autre
-        $orientations = array_merge(
-            array_fill(0, 75, 'heterosexuel'),
-            array_fill(0, 8, 'homosexuel'),
-            array_fill(0, 12, 'bisexuel'),
-            array_fill(0, 3, 'pansexuel'),
-            array_fill(0, 2, 'autre'),
-        );
-
-        $typesRelation = [
+        $typesConnexion = [
             ['amitie'],
-            ['romantique_serieux'],
-            ['romantique_casual'],
             ['activites'],
+            ['etudes'],
+            ['sorties'],
+            ['gaming'],
             ['amitie', 'activites'],
-            ['romantique_serieux', 'amitie'],
-            ['romantique_casual', 'amitie'],
-            ['romantique_serieux', 'romantique_casual'],
-            ['amitie', 'romantique_serieux', 'activites'],
+            ['amitie', 'sorties'],
+            ['activites', 'sorties'],
+            ['etudes', 'amitie'],
+            ['gaming', 'amitie'],
+            ['activites', 'etudes'],
+            ['amitie', 'activites', 'sorties'],
+            ['gaming', 'activites'],
+            ['etudes', 'amitie', 'sorties'],
         ];
+
+        $allPrenoms = array_merge(
+            array_map(fn ($p) => [$p, 'etudiant'], $prenomsF),
+            array_map(fn ($p) => [$p, 'etudiant'], $prenomsM),
+            [
+                ['Sophie', 'personnel'], ['Marc', 'personnel'], ['Julie', 'personnel'],
+                ['Pierre', 'personnel'], ['Nathalie', 'personnel'], ['Frederic', 'personnel'],
+                ['Melanie', 'personnel'], ['Jean', 'personnel'], ['Annie', 'personnel'], ['Claude', 'personnel'],
+            ]
+        );
 
         $allInterets = Interet::all();
-
-        $used = [];
-        $count = 0;
-        $maxAttempts = 3000;
-        $attempts = 0;
-
-        // ~47% femme, ~47% homme, ~6% non-binaire/autre
-        $genrePool = array_merge(
-            array_fill(0, 47, 'femme'),
-            array_fill(0, 47, 'homme'),
-            array_fill(0, 4,  'non-binaire'),
-            array_fill(0, 2,  'autre'),
-        );
+        $used        = [];
+        $count       = 0;
+        $maxAttempts = 5000;
+        $attempts    = 0;
 
         while ($count < 250 && $attempts < $maxAttempts) {
             $attempts++;
-            $genre = $genrePool[array_rand($genrePool)];
 
-            if ($genre === 'femme') {
-                $prenom = $prenomsF[array_rand($prenomsF)];
-            } elseif ($genre === 'homme') {
-                $prenom = $prenomsM[array_rand($prenomsM)];
-            } else {
-                $prenom = (rand(0, 1) ? $prenomsF : $prenomsM)[array_rand($prenomsF)];
-            }
+            $pick     = $allPrenoms[array_rand($allPrenoms)];
+            $prenom   = $pick[0];
+            $position = $pick[1];
+            $nom      = $noms[array_rand($noms)];
 
-            $nom = $noms[array_rand($noms)];
+            // Transliterate accented characters for email
+            $trans = [
+                'é'=>'e','è'=>'e','ê'=>'e','ë'=>'e','à'=>'a','â'=>'a','ä'=>'a',
+                'î'=>'i','ï'=>'i','ô'=>'o','ö'=>'o','ù'=>'u','û'=>'u','ü'=>'u',
+                'ç'=>'c','É'=>'e','È'=>'e','Ê'=>'e','À'=>'a','Â'=>'a','Î'=>'i',
+                'Ô'=>'o','Ù'=>'u','Û'=>'u','Ç'=>'c',
+            ];
+            $slug  = strtolower(str_replace(array_keys($trans), array_values($trans), $prenom . '.' . $nom));
+            $slug  = preg_replace('/[^a-z0-9.]/', '', $slug);
+            $domain = $position === 'etudiant' ? 'edu.cegeptr.qc.ca' : 'cegeptr.qc.ca';
+            $email = $slug . ($count > 0 && isset($used[$slug]) ? $count : '') . '@' . $domain;
 
-            // Transliterate accented characters
-            $slug = strtolower(str_replace(
-                ['é','è','ê','ë','à','â','ä','î','ï','ô','ö','ù','û','ü','ç','É','È','Ê','À','Â','Î','Ô','Ù','Û','Ç'],
-                ['e','e','e','e','a','a','a','i','i','o','o','u','u','u','c','e','e','e','a','a','i','o','u','u','c'],
-                $prenom . '.' . $nom
-            ));
-            $slug = preg_replace('/[^a-z0-9.]/', '', $slug);
-
-            $position = rand(0, 5) === 0 ? 'personnel' : 'etudiant';
-            $domain   = $position === 'etudiant' ? 'edu.cegeptr.qc.ca' : 'cegeptr.qc.ca';
-            $suffix   = $count > 0 && in_array($slug, $used) ? $count : '';
-            $email    = $slug . $suffix . '@' . $domain;
-
-            if (in_array($email, $used)) {
-                continue;
-            }
-            $used[] = $email;
-            $used[] = $slug;
-
-            $orientation = $orientations[array_rand($orientations)];
+            if (isset($used[$email])) continue;
+            $used[$email] = true;
+            $used[$slug]  = ($used[$slug] ?? 0) + 1;
 
             $user = User::firstOrCreate(
                 ['email' => $email],
@@ -161,17 +149,14 @@ class UserSeeder extends Seeder
                     'position'          => $position,
                     'numero_programme'  => $programmes[array_rand($programmes)],
                     'bio'               => $bios[array_rand($bios)],
-                    'visibilite'        => rand(0, 4) === 0 ? 'prive' : 'public',
+                    'visibilite'        => rand(0, 5) === 0 ? 'prive' : 'public',
                     'email_verified_at' => now(),
-                    'genre'             => $genre,
-                    'orientation'       => $orientation,
-                    'type_relation'     => $typesRelation[array_rand($typesRelation)],
+                    'type_connexion'    => $typesConnexion[array_rand($typesConnexion)],
                 ]
             );
 
             if ($allInterets->isNotEmpty()) {
-                $interetCount = rand(3, 9);
-                $ids = $allInterets->random(min($interetCount, $allInterets->count()))->pluck('id')->toArray();
+                $ids = $allInterets->random(min(rand(3, 9), $allInterets->count()))->pluck('id')->toArray();
                 $user->interets()->syncWithoutDetaching($ids);
             }
 

@@ -5,33 +5,30 @@
 @section('styles')
 <style>
     /* ── Layout ── */
-    .discover-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+    .discover-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 
     /* ── Filter sidebar ── */
     .filters-card { padding: 1.2rem; }
-    .filter-section-title { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
-    .filter-section-title svg { width: 18px; height: 18px; fill: currentColor; }
-    .filter-form { display: grid; gap: 1.1rem; }
-    .filter-form label { display: block; color: rgba(255,255,255,0.85); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; }
-    .filter-form input[type="text"], .filter-form select { width: 100%; padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.85rem; }
+    .filter-section-title { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .filter-section-title svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+    .filter-form { display: grid; gap: 1rem; }
+    .filter-form > label { display: block; color: rgba(255,255,255,0.85); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .filter-form input[type="text"] { width: 100%; padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.85rem; }
     .filter-form input::placeholder { color: rgba(255,255,255,0.5); }
-    .filter-form select option { color: #222; }
 
-    /* Collapsible sub-sections */
+    /* Collapsible interest section */
     .filter-group { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
     .filter-group-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.9rem; background: none; border: none; color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
-    .filter-group-toggle .chevron { width: 16px; height: 16px; fill: currentColor; transition: transform 0.25s; }
+    .filter-group-toggle .chevron { width: 16px; height: 16px; fill: currentColor; transition: transform 0.25s; flex-shrink: 0; }
     .filter-group-toggle.open .chevron { transform: rotate(180deg); }
-    .filter-group-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 0.9rem; }
-    .filter-group-body.open { max-height: 600px; padding: 0 0.9rem 0.9rem; }
-
-    .interest-filter-grid { display: grid; gap: 0.65rem; }
-    .interest-sub-group { }
-    .interest-sub-group h4 { color: rgba(255,255,255,0.7); font-size: 0.74rem; font-weight: 600; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .interest-options { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .filter-group-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .filter-group-body.open { max-height: 700px; padding: 0 0.9rem 0.9rem; }
+    .interest-filter-grid { display: grid; gap: 0.6rem; }
+    .interest-sub-group h4 { color: rgba(255,255,255,0.65); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+    .interest-options { display: flex; flex-wrap: wrap; gap: 0.35rem; }
     .interest-option { position: relative; }
     .interest-option input { position: absolute; opacity: 0; }
-    .interest-option span { display: inline-flex; align-items: center; padding: 0.35rem 0.7rem; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: 0.74rem; cursor: pointer; }
+    .interest-option span { display: inline-flex; align-items: center; padding: 0.3rem 0.65rem; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: 0.72rem; cursor: pointer; }
     .interest-option input:checked + span { background: #fff; color: #c0392b; font-weight: 700; }
 
     .filter-actions { display: flex; gap: 0.6rem; }
@@ -39,35 +36,30 @@
     .btn-filter { background: #fff; color: #c0392b; }
     .btn-reset { background: rgba(255,255,255,0.14); color: #fff; }
 
-    /* Profile incomplete notice */
-    .notice { padding: 0.7rem 0.9rem; border-radius: 12px; background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.35); color: rgba(255,255,255,0.9); font-size: 0.78rem; line-height: 1.5; }
-    .notice a { color: #f1c40f; font-weight: 600; }
-
     /* ── Swipe section ── */
     .swipe-section { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; padding: 1.4rem; }
-    .swipe-title { color: #fff; font-size: 1.25rem; font-weight: 700; text-align: center; }
-    .swipe-container { position: relative; width: 340px; height: 440px; }
+    .swipe-title { color: #fff; font-size: 1.2rem; font-weight: 700; text-align: center; }
+    .swipe-container { position: relative; width: 340px; height: 460px; }
 
-    /* Only the top card is visible — others hidden */
-    .swipe-card { position: absolute; width: 100%; height: 100%; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 2px solid rgba(255,255,255,0.25); border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: grab; user-select: none; transition: transform 0.4s ease, opacity 0.4s ease; will-change: transform; visibility: hidden; pointer-events: none; }
+    /* Only top card visible */
+    .swipe-card { position: absolute; width: 100%; height: 100%; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 2px solid rgba(255,255,255,0.25); border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: grab; user-select: none; transition: transform 0.4s ease, opacity 0.4s ease; will-change: transform; visibility: hidden; pointer-events: none; }
     .swipe-card.top-card { visibility: visible; pointer-events: auto; }
     .swipe-card.swiping { transition: none; cursor: grabbing; }
     .swipe-card.swipe-right { transform: translateX(150%) rotate(20deg); opacity: 0; visibility: visible; }
-    .swipe-card.swipe-left { transform: translateX(-150%) rotate(-20deg); opacity: 0; visibility: visible; }
+    .swipe-card.swipe-left  { transform: translateX(-150%) rotate(-20deg); opacity: 0; visibility: visible; }
 
-    .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; overflow: hidden; }
-    .profile-avatar svg { width: 50px; height: 50px; fill: rgba(255,255,255,0.8); }
-    .profile-name { color: #fff; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .profile-position { color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-bottom: 0.3rem; text-transform: capitalize; }
-    .profile-bio { color: rgba(255,255,255,0.85); font-size: 0.85rem; line-height: 1.5; max-height: 80px; overflow: hidden; margin-top: 0.25rem; }
-    .swipe-indicator { position: absolute; top: 1.5rem; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 8px; opacity: 0; transition: opacity 0.2s ease; }
-    .like-indicator { right: 1.5rem; color: #2ecc71; border: 2px solid #2ecc71; }
-    .nope-indicator { left: 1.5rem; color: #e74c3c; border: 2px solid #e74c3c; }
-    .profile-interest-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; justify-content: center; }
-    .profile-interest { padding: 0.3rem 0.6rem; border-radius: 999px; background: rgba(255,255,255,0.16); color: #fff; font-size: 0.72rem; }
-    .profile-relation-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; justify-content: center; }
-    .profile-relation { padding: 0.25rem 0.55rem; border-radius: 999px; background: rgba(255,200,100,0.2); color: rgba(255,230,150,0.95); font-size: 0.68rem; border: 1px solid rgba(255,200,100,0.3); }
-    .swipe-buttons { display: flex; gap: 1.5rem; margin-top: 0.5rem; }
+    .profile-avatar { width: 95px; height: 95px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 1.1rem; overflow: hidden; }
+    .profile-avatar svg { width: 46px; height: 46px; fill: rgba(255,255,255,0.8); }
+    .profile-name { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .profile-sub { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-bottom: 0.2rem; }
+    .profile-bio { color: rgba(255,255,255,0.85); font-size: 0.82rem; line-height: 1.5; max-height: 70px; overflow: hidden; margin-top: 0.35rem; }
+    .swipe-indicator { position: absolute; top: 1.5rem; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 8px; opacity: 0; transition: opacity 0.2s; }
+    .like-indicator { right: 1.2rem; color: #2ecc71; border: 2px solid #2ecc71; }
+    .nope-indicator { left: 1.2rem; color: #e74c3c; border: 2px solid #e74c3c; }
+    .profile-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.9rem; justify-content: center; }
+    .profile-interest { padding: 0.28rem 0.58rem; border-radius: 999px; background: rgba(255,255,255,0.16); color: #fff; font-size: 0.7rem; }
+    .profile-connexion { padding: 0.25rem 0.52rem; border-radius: 999px; background: rgba(100,210,255,0.18); color: rgba(180,235,255,0.95); font-size: 0.68rem; border: 1px solid rgba(100,210,255,0.3); }
+    .swipe-buttons { display: flex; gap: 1.5rem; margin-top: 0.4rem; }
     .swipe-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .swipe-btn svg { width: 28px; height: 28px; }
     .btn-nope svg { fill: #e74c3c; }
@@ -77,7 +69,7 @@
     .empty-state h2 { color: #fff; margin-bottom: 0.5rem; }
 
     @media (max-width: 960px) { .discover-layout { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .swipe-container { width: 300px; height: 400px; } }
+    @media (max-width: 480px) { .swipe-container { width: 300px; height: 420px; } }
 </style>
 @endsection
 
@@ -91,24 +83,15 @@
             Filtres
         </div>
 
-        @if (!auth()->user()->genre || !auth()->user()->orientation)
-            <div class="notice" style="margin-bottom:1rem;">
-                Configurez votre <a href="{{ route('profile.edit') }}">genre et orientation</a> pour des suggestions personnalis&eacute;es.
-            </div>
-        @endif
-
         <form method="GET" action="{{ route('home') }}" class="filter-form">
-
-            {{-- Search --}}
             <div>
                 <label for="search">Recherche</label>
                 <input type="text" id="search" name="search" value="{{ $search }}" placeholder="Nom, bio ou programme">
             </div>
 
-            {{-- Interests collapsible --}}
             <div class="filter-group">
                 <button type="button" class="filter-group-toggle {{ count($selectedInterets) ? 'open' : '' }}" data-target="interestBody">
-                    <span>Int&eacute;r&ecirc;ts requis{{ count($selectedInterets) ? ' (' . count($selectedInterets) . ')' : '' }}</span>
+                    <span>Int&eacute;r&ecirc;ts{{ count($selectedInterets) ? ' (' . count($selectedInterets) . ')' : '' }}</span>
                     <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                 </button>
                 <div class="filter-group-body {{ count($selectedInterets) ? 'open' : '' }}" id="interestBody">
@@ -139,22 +122,23 @@
 
     {{-- ── Swipe section ── --}}
     <section class="card swipe-section">
-        <h2 class="swipe-title">D&eacute;couvrir des profils compatibles</h2>
+        <h2 class="swipe-title">D&eacute;couvrir des profils</h2>
         @if($usersToSwipe->count() > 0)
             <div class="swipe-container" id="swipeContainer">
                 @foreach($usersToSwipe->reverse() as $profile)
                     @php
-                        $relationLabels = [
-                            'amitie'              => 'Amitie',
-                            'romantique_serieux'  => 'Relation serieuse',
-                            'romantique_casual'   => 'Relation casual',
-                            'activites'           => 'Partenaire d\'activites',
+                        $connexionLabels = [
+                            'amitie'    => '&#128075; Amiti&eacute;',
+                            'activites' => '&#127939; Activit&eacute;s',
+                            'etudes'    => '&#128218; &Eacute;tudes',
+                            'sorties'   => '&#127917; Sorties',
+                            'gaming'    => '&#127918; Gaming',
                         ];
-                        $profileRelations = $profile->type_relation ?? [];
+                        $profileConnexions = $profile->type_connexion ?? [];
                     @endphp
                     <div class="swipe-card" data-user-id="{{ $profile->id }}">
-                        <span class="swipe-indicator like-indicator">LIKE</span>
-                        <span class="swipe-indicator nope-indicator">NOPE</span>
+                        <span class="swipe-indicator like-indicator">OUI</span>
+                        <span class="swipe-indicator nope-indicator">PASSER</span>
                         <div class="profile-avatar">
                             @if ($profile->avatar_url)
                                 <img src="{{ asset('storage/' . $profile->avatar_url) }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
@@ -163,19 +147,14 @@
                             @endif
                         </div>
                         <div class="profile-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
-                        <div class="profile-position">{{ $profile->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($profile->genre) &nbsp;&bull;&nbsp; {{ ucfirst($profile->genre) }}@endif</div>
-                        @if($profile->numero_programme)<div class="profile-position">{{ $profile->numero_programme }}</div>@endif
+                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
                         @if($profile->bio)<div class="profile-bio">{{ $profile->bio }}</div>@endif
-                        @if(!empty($profileRelations))
-                            <div class="profile-relation-row">
-                                @foreach($profileRelations as $rel)
-                                    <span class="profile-relation">{{ $relationLabels[$rel] ?? $rel }}</span>
+                        @if(!empty($profileConnexions) || $profile->interets->isNotEmpty())
+                            <div class="profile-tags">
+                                @foreach($profileConnexions as $c)
+                                    <span class="profile-connexion">{!! $connexionLabels[$c] ?? $c !!}</span>
                                 @endforeach
-                            </div>
-                        @endif
-                        @if($profile->interets->isNotEmpty())
-                            <div class="profile-interest-row">
-                                @foreach($profile->interets->take(5) as $interet)
+                                @foreach($profile->interets->take(4) as $interet)
                                     <span class="profile-interest">{{ $interet->nom }}</span>
                                 @endforeach
                             </div>
@@ -185,11 +164,11 @@
             </div>
             <div class="swipe-buttons">
                 <button class="swipe-btn btn-nope" id="btnNope" title="Passer"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-                <button class="swipe-btn btn-like" id="btnLike" title="Aimer"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+                <button class="swipe-btn btn-like" id="btnLike" title="Connecter"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></button>
             </div>
         @else
             <div class="empty-state">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h2>Aucun profil disponible</h2>
                 <p>Ajuste les filtres ou reviens un peu plus tard.</p>
             </div>
@@ -200,18 +179,17 @@
 
 @section('scripts')
 <script>
-    // ── Collapsible filter groups ──
+    // Collapsible filter groups
     document.querySelectorAll('.filter-group-toggle').forEach(btn => {
         btn.addEventListener('click', function () {
-            const targetId = this.dataset.target;
-            const body = document.getElementById(targetId);
-            const isOpen = body.classList.contains('open');
-            body.classList.toggle('open', !isOpen);
-            this.classList.toggle('open', !isOpen);
+            const body = document.getElementById(this.dataset.target);
+            const open = body.classList.contains('open');
+            body.classList.toggle('open', !open);
+            this.classList.toggle('open', !open);
         });
     });
 
-    // ── Swipe logic ──
+    // Swipe
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     let currentCard = null, startX = 0, currentX = 0, isDragging = false;
 
@@ -221,15 +199,9 @@
     }
 
     function updateTopCard() {
-        const cards = document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)');
-        document.querySelectorAll('.swipe-card').forEach(c => {
-            if (!c.classList.contains('swipe-left') && !c.classList.contains('swipe-right')) {
-                c.classList.remove('top-card');
-            }
-        });
-        if (cards.length > 0) {
-            cards[cards.length - 1].classList.add('top-card');
-        }
+        document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)').forEach(c => c.classList.remove('top-card'));
+        const top = getTopCard();
+        if (top) top.classList.add('top-card');
     }
 
     function swipeCard(direction) {
@@ -237,11 +209,9 @@
         if (!card) return;
         const userId = card.dataset.userId;
 
-        // Reveal the next card before the animation
-        const allVisible = Array.from(document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)'));
-        if (allVisible.length > 1) {
-            allVisible[allVisible.length - 2].classList.add('top-card');
-        }
+        // Reveal next card before animation
+        const visible = Array.from(document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)'));
+        if (visible.length > 1) visible[visible.length - 2].classList.add('top-card');
 
         card.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
         card.classList.remove('top-card');
@@ -258,41 +228,38 @@
     document.getElementById('btnNope')?.addEventListener('click', () => swipeCard('left'));
     document.getElementById('btnLike')?.addEventListener('click', () => swipeCard('right'));
 
-    document.addEventListener('pointerdown', (e) => {
+    document.addEventListener('pointerdown', e => {
         currentCard = getTopCard();
         if (!currentCard || !currentCard.contains(e.target)) return;
         isDragging = true; startX = e.clientX;
         currentCard.classList.add('swiping');
         currentCard.setPointerCapture(e.pointerId);
     });
-
-    document.addEventListener('pointermove', (e) => {
+    document.addEventListener('pointermove', e => {
         if (!isDragging || !currentCard) return;
         currentX = e.clientX - startX;
         currentCard.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.08}deg)`;
-        const likeInd = currentCard.querySelector('.like-indicator');
-        const nopeInd = currentCard.querySelector('.nope-indicator');
-        const opacity = Math.min(Math.abs(currentX) / 100, 1);
-        if (currentX > 0) { likeInd.style.opacity = opacity; nopeInd.style.opacity = 0; }
-        else { nopeInd.style.opacity = opacity; likeInd.style.opacity = 0; }
+        const like = currentCard.querySelector('.like-indicator');
+        const nope = currentCard.querySelector('.nope-indicator');
+        const op = Math.min(Math.abs(currentX) / 100, 1);
+        if (currentX > 0) { like.style.opacity = op; nope.style.opacity = 0; }
+        else { nope.style.opacity = op; like.style.opacity = 0; }
     });
-
     document.addEventListener('pointerup', () => {
         if (!isDragging || !currentCard) return;
         isDragging = false;
         currentCard.classList.remove('swiping');
-        const likeInd = currentCard.querySelector('.like-indicator');
-        const nopeInd = currentCard.querySelector('.nope-indicator');
+        const like = currentCard.querySelector('.like-indicator');
+        const nope = currentCard.querySelector('.nope-indicator');
         if (currentX > 100) swipeCard('right');
         else if (currentX < -100) swipeCard('left');
         else {
             currentCard.style.transform = '';
-            likeInd.style.opacity = 0; nopeInd.style.opacity = 0;
+            like.style.opacity = 0; nope.style.opacity = 0;
         }
         currentCard = null; currentX = 0;
     });
 
-    // Initialize: show only top card
     updateTopCard();
 </script>
 @endsection
