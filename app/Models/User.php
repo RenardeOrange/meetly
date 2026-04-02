@@ -26,6 +26,9 @@ class User extends Authenticatable
         'blacklisted',
         'position',
         'numero_programme',
+        'genre',
+        'orientation',
+        'type_relation',
     ];
 
     protected $hidden = [
@@ -39,6 +42,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'blacklisted' => 'boolean',
+            'type_relation' => 'array',
         ];
     }
 

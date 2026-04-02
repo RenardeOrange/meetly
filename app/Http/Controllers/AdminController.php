@@ -31,7 +31,7 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->orderByDesc('created_at')->get();
+        $users = $query->with('interets')->orderByDesc('created_at')->get();
 
         return view('admin.users', compact('users'));
     }
@@ -39,13 +39,15 @@ class AdminController extends Controller
     public function updateUser(Request $request, User $user)
     {
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'role' => 'required|in:admin,user',
-            'position' => 'required|in:etudiant,personnel',
+            'nom'         => 'required|string|max:255',
+            'prenom'      => 'required|string|max:255',
+            'role'        => 'required|in:admin,user',
+            'position'    => 'required|in:etudiant,personnel',
+            'genre'       => 'nullable|in:homme,femme,non-binaire,autre',
+            'orientation' => 'nullable|in:heterosexuel,homosexuel,bisexuel,pansexuel,autre',
         ]);
 
-        $user->update($request->only('nom', 'prenom', 'role', 'position'));
+        $user->update($request->only('nom', 'prenom', 'role', 'position', 'genre', 'orientation'));
 
         return redirect()->route('admin.users')->with('success', 'Utilisateur mis a jour.');
     }

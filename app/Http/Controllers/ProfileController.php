@@ -28,12 +28,16 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
+            'nom'              => 'required|string|max:255',
+            'prenom'           => 'required|string|max:255',
             'numero_programme' => 'nullable|string|max:255',
-            'bio' => 'nullable|string|max:200',
-            'visibilite' => 'required|in:public,prive',
-            'avatar' => 'nullable|image|max:2048',
+            'bio'              => 'nullable|string|max:200',
+            'visibilite'       => 'required|in:public,prive',
+            'avatar'           => 'nullable|image|max:2048',
+            'genre'            => 'nullable|in:homme,femme,non-binaire,autre',
+            'orientation'      => 'nullable|in:heterosexuel,homosexuel,bisexuel,pansexuel,autre',
+            'type_relation'    => 'nullable|array',
+            'type_relation.*'  => 'in:amitie,romantique_serieux,romantique_casual,activites',
         ]);
 
         if ($request->hasFile('avatar')) {
