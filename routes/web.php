@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InteretController;
 use App\Http\Controllers\ProfileController;
@@ -31,6 +32,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/swipe', [SwipeController::class, 'swipe'])->name('swipe');
 
     Route::get('/chats', [ChatController::class, 'index'])->name('chats');
+    Route::get('/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::post('/chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.message');
+    Route::post('/chats/request/{chat}/respond', [ChatController::class, 'respondToRequest'])->name('chats.request.respond');
+
+    Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
+    Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
+    Route::post('/groups/{group}/join', [GroupController::class, 'join'])->name('groups.join');
+    Route::post('/groups/{group}/messages', [GroupController::class, 'sendMessage'])->name('groups.messages.store');
+    Route::post('/groups/{group}/leave', [GroupController::class, 'leave'])->name('groups.leave');
+    Route::post('/groups/{group}/members/{user}/kick', [GroupController::class, 'kick'])->name('groups.members.kick');
+    Route::post('/groups/{group}/members/{user}/promote', [GroupController::class, 'promote'])->name('groups.members.promote');
+    Route::post('/groups/{group}/members/{user}/demote', [GroupController::class, 'demote'])->name('groups.members.demote');
+    Route::get('/groups/{group}/search-users', [GroupController::class, 'searchUsers'])->name('groups.search-users');
+    Route::post('/groups/{group}/invite', [GroupController::class, 'invite'])->name('groups.invite');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

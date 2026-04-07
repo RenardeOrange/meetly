@@ -10,6 +10,7 @@ class Chat extends Model
 {
     protected $fillable = [
         'match_id',
+        'request_statut',
     ];
 
     public function match(): BelongsTo

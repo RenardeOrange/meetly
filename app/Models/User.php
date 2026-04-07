@@ -68,4 +68,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    /** Jaccard-based interest match percentage (0-100) */
+    public function matchScore(User $other): int
+    {
+        $mine  = $this->interets->pluck('id');
+        $theirs = $other->interets->pluck('id');
+
+        if ($mine->isEmpty() && $theirs->isEmpty()) return 0;
+
+        $common = $mine->intersect($theirs)->count();
+        $total  = $mine->merge($theirs)->unique()->count();
+
+        return $total > 0 ? (int) round(($common / $total) * 100) : 0;
+    }
 }

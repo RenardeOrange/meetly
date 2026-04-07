@@ -70,6 +70,27 @@
 
     @media (max-width: 960px) { .discover-layout { grid-template-columns: 1fr; } }
     @media (max-width: 480px) { .swipe-container { width: 300px; height: 420px; } }
+
+    /* ── Message request modal ── */
+    .msg-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
+    .msg-modal-overlay.hidden { display: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .msg-modal { background: rgba(30,10,30,0.95); border: 1px solid rgba(255,255,255,0.18); border-radius: 24px; padding: 2rem 1.75rem; width: min(380px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .msg-modal-title { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .msg-modal-sub { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-bottom: 1.2rem; }
+    .msg-modal textarea { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); border-radius: 14px; color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.88rem; padding: 0.85rem 1rem; resize: none; outline: none; }
+    .msg-modal textarea::placeholder { color: rgba(255,255,255,0.4); }
+    .msg-modal-chars { color: rgba(255,255,255,0.4); font-size: 0.72rem; text-align: right; margin-top: 0.3rem; margin-bottom: 1.1rem; }
+    .msg-modal-error { color: #e74c3c; font-size: 0.78rem; margin-top: -0.7rem; margin-bottom: 0.8rem; display: none; }
+    .msg-modal-actions { display: flex; gap: 0.75rem; }
+    .msg-modal-cancel { flex: 1; padding: 0.8rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); background: transparent; color: rgba(255,255,255,0.75); font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .msg-modal-send { flex: 2; padding: 0.8rem; border-radius: 999px; border: none; background: #fff; color: #c0392b; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+    .msg-modal-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Match toast ── */
+    .match-toast { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; font-weight: 700; font-size: 1rem; padding: 0.9rem 2rem; border-radius: 999px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); z-index: 10000; animation: toastIn 0.3s ease; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 </style>
 @endsection
 
@@ -175,6 +196,21 @@
         @endif
     </section>
 </div>
+
+{{-- ── Message request modal ── --}}
+<div class="msg-modal-overlay hidden" id="msgModal">
+    <div class="msg-modal">
+        <div class="msg-modal-title">Envoie un message à <span id="msgModalName"></span></div>
+        <div class="msg-modal-sub">Ils verront ton message si tu les intéresses.</div>
+        <textarea id="msgModalText" rows="3" maxlength="500" placeholder="Dis quelque chose de sympa..."></textarea>
+        <div class="msg-modal-chars"><span id="msgModalCount">0</span>/500</div>
+        <div class="msg-modal-error" id="msgModalError">Écris un petit message avant d'envoyer.</div>
+        <div class="msg-modal-actions">
+            <button class="msg-modal-cancel" id="msgModalCancel">Annuler</button>
+            <button class="msg-modal-send" id="msgModalSend">Envoyer ✓</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -192,6 +228,7 @@
     // Swipe
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     let currentCard = null, startX = 0, currentX = 0, isDragging = false;
+    let pendingLikeCard = null;
 
     function getTopCard() {
         const cards = document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)');
@@ -204,26 +241,92 @@
         if (top) top.classList.add('top-card');
     }
 
-    function swipeCard(direction) {
-        const card = getTopCard();
-        if (!card) return;
-        const userId = card.dataset.userId;
+    function showMatchToast(text) {
+        const t = document.createElement('div');
+        t.className = 'match-toast';
+        t.textContent = text;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
 
-        // Reveal next card before animation
+    function doSwipeAnimation(card, direction) {
         const visible = Array.from(document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)'));
         if (visible.length > 1) visible[visible.length - 2].classList.add('top-card');
-
         card.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
         card.classList.remove('top-card');
+        setTimeout(() => { card.remove(); updateTopCard(); }, 400);
+    }
 
+    function submitLike(card, message) {
+        const userId = card.dataset.userId;
+        doSwipeAnimation(card, 'right');
         fetch('/swipe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: JSON.stringify({ user_id: userId, action: direction === 'right' ? 'like' : 'pass' })
+            body: JSON.stringify({ user_id: userId, action: 'like', message })
+        }).then(r => r.json()).then(data => {
+            if (data.status === 'matched') showMatchToast('🎉 ' + data.message);
         });
-
-        setTimeout(() => { card.remove(); updateTopCard(); }, 400);
     }
+
+    function swipeCard(direction) {
+        const card = getTopCard();
+        if (!card) return;
+
+        if (direction === 'right') {
+            // Show message modal instead of swiping immediately
+            pendingLikeCard = card;
+            document.getElementById('msgModalName').textContent = card.querySelector('.profile-name').textContent.trim();
+            document.getElementById('msgModalText').value = '';
+            document.getElementById('msgModalCount').textContent = '0';
+            document.getElementById('msgModalError').style.display = 'none';
+            document.getElementById('msgModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('msgModalText').focus(), 50);
+            return;
+        }
+
+        // Pass — animate and call backend
+        doSwipeAnimation(card, 'left');
+        fetch('/swipe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ user_id: card.dataset.userId, action: 'pass' })
+        });
+    }
+
+    // Modal logic
+    const msgModal  = document.getElementById('msgModal');
+    const msgText   = document.getElementById('msgModalText');
+    const msgCount  = document.getElementById('msgModalCount');
+    const msgError  = document.getElementById('msgModalError');
+
+    msgText.addEventListener('input', () => {
+        msgCount.textContent = msgText.value.length;
+        if (msgText.value.trim()) msgError.style.display = 'none';
+    });
+
+    document.getElementById('msgModalSend').addEventListener('click', () => {
+        const message = msgText.value.trim();
+        if (!message) { msgError.style.display = 'block'; return; }
+        msgModal.classList.add('hidden');
+        submitLike(pendingLikeCard, message);
+        pendingLikeCard = null;
+    });
+
+    document.getElementById('msgModalCancel').addEventListener('click', () => {
+        msgModal.classList.add('hidden');
+        // Reset card to centre
+        if (pendingLikeCard) {
+            pendingLikeCard.style.transform = '';
+            pendingLikeCard.querySelector('.like-indicator').style.opacity = 0;
+        }
+        pendingLikeCard = null;
+    });
+
+    // Close on overlay click
+    msgModal.addEventListener('click', e => {
+        if (e.target === msgModal) document.getElementById('msgModalCancel').click();
+    });
 
     document.getElementById('btnNope')?.addEventListener('click', () => swipeCard('left'));
     document.getElementById('btnLike')?.addEventListener('click', () => swipeCard('right'));

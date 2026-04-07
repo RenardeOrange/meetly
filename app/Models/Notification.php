@@ -9,6 +9,7 @@ class Notification extends Model
 {
     protected $fillable = [
         'user_id',
+        'from_user_id',
         'titre',
         'contenu',
         'lu',
