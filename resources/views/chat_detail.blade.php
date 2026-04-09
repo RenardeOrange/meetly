@@ -35,7 +35,8 @@
     .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     .msg-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .msg-avatar svg { width: 14px; height: 14px; fill: rgba(255,255,255,0.7); }
-    .msg-bubble { max-width: 65%; padding: 0.65rem 1rem; border-radius: 18px; font-size: 0.88rem; line-height: 1.5; word-break: break-word; }
+    .msg-content { max-width: 65%; min-width: 0; }
+    .msg-bubble { padding: 0.65rem 1rem; border-radius: 18px; font-size: 0.88rem; line-height: 1.5; word-break: break-word; }
     .msg-row:not(.mine) .msg-bubble { background: rgba(255,255,255,0.18); color: #fff; border-bottom-left-radius: 4px; }
     .msg-row.mine .msg-bubble { background: #fff; color: #c0392b; border-bottom-right-radius: 4px; }
     .msg-time { font-size: 0.65rem; color: rgba(255,255,255,0.4); text-align: center; margin: 0.25rem 0; align-self: center; }
@@ -81,7 +82,7 @@
                 @endif
                 @php $score = $matchScore ?? 0; @endphp
                 <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;background:{{ $score >= 60 ? 'rgba(46,204,113,0.25)' : ($score >= 30 ? 'rgba(255,220,80,0.2)' : 'rgba(255,255,255,0.1)') }};color:{{ $score >= 60 ? '#2ecc71' : ($score >= 30 ? '#fdd835' : 'rgba(255,255,255,0.6)') }};">
-                    ♥ {{ $score }}% en commun
+                    {{ $score }}% en commun
                 </span>
             </div>
         </div>
@@ -118,7 +119,7 @@
                         @endif
                     </div>
                 @endif
-                <div>
+                <div class="msg-content">
                     <div class="msg-bubble">{{ $msg->contenu }}</div>
                     <div class="msg-time">{{ $msg->date_envoi->format('H:i') }}</div>
                 </div>

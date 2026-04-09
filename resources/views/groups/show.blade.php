@@ -229,6 +229,29 @@
                     <div class="invite-results" id="inviteResults"></div>
                 </div>
             </div>
+
+            {{-- Rename group --}}
+            <div class="sidebar-card">
+                <div class="sidebar-title">Renommer le groupe</div>
+                <form method="POST" action="{{ route('groups.update', $group) }}" id="renameForm" style="display:grid;gap:0.5rem;">
+                    @csrf
+                    @method('PUT')
+                    <input type="text" name="nom" class="invite-input" value="{{ $group->nom }}" maxlength="60" required placeholder="Nom du groupe">
+                    <textarea name="description" class="invite-input" rows="2" maxlength="500" placeholder="Description (optionnelle)" style="resize:vertical;border-radius:12px;margin-top:0.2rem;">{{ $group->description }}</textarea>
+                    <button type="submit" style="background:#fff;color:#c0392b;border:none;border-radius:999px;padding:0.45rem 1rem;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:0.2rem;">Enregistrer</button>
+                </form>
+            </div>
+
+            {{-- Delete group --}}
+            <div class="sidebar-card">
+                <div class="sidebar-title" style="color:rgba(231,76,60,0.8);">Zone dangereuse</div>
+                <form method="POST" action="{{ route('groups.destroy', $group) }}"
+                      onsubmit="return confirm('Supprimer le groupe « {{ $group->nom }} » et tous ses membres ? Cette action est irréversible.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-leave" style="color:rgba(231,76,60,0.9);">Supprimer le groupe</button>
+                </form>
+            </div>
         @endif
 
         {{-- Leave button --}}

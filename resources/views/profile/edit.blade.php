@@ -23,8 +23,10 @@
     .btn-save, .btn-manage { width: 100%; border: none; border-radius: 999px; padding: 0.9rem 1rem; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; font-family: 'Poppins', sans-serif; }
     .btn-save { background: #fff; color: #c0392b; }
     .btn-manage { display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.14); color: #fff; margin-top: 1rem; }
+    .success-message { background: rgba(46,204,113,0.16); color: #fff; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(46,204,113,0.35); margin-bottom: 1rem; }
     .error-message { background: rgba(231,76,60,0.18); color: #fff; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(231,76,60,0.35); margin-bottom: 1rem; }
     .char-count { text-align: right; color: rgba(255,255,255,0.6); font-size: 0.74rem; margin-top: 0.35rem; }
+    .field-note { color: rgba(255,255,255,0.6); font-size: 0.76rem; line-height: 1.5; margin-top: -0.35rem; }
     .side-stack { display: grid; gap: 1.5rem; }
     .interest-chips { display: flex; flex-wrap: wrap; gap: 0.55rem; }
     .interest-chip { padding: 0.45rem 0.8rem; border-radius: 999px; background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; }
@@ -34,6 +36,22 @@
     .connexion-option input { position: absolute; opacity: 0; }
     .connexion-option span { display: inline-flex; align-items: center; padding: 0.5rem 0.9rem; border-radius: 999px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.82); font-size: 0.82rem; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; }
     .connexion-option input:checked + span { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.5); font-weight: 600; }
+    /* Dark mode toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 500; }
+    .toggle-switch { position: relative; width: 46px; height: 25px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.2); border-radius: 25px; cursor: pointer; transition: 0.3s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 19px; height: 19px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: rgba(46,204,113,0.6); }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(21px); }
+    /* Language radio */
+    .lang-options { display: flex; gap: 0.55rem; }
+    .lang-option { position: relative; }
+    .lang-option input { position: absolute; opacity: 0; }
+    .lang-option span { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.45rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.82); font-size: 0.82rem; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; }
+    .lang-option input:checked + span { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.5); font-weight: 600; }
     @media (max-width: 880px) { .profile-page, .form-row { grid-template-columns: 1fr; } }
 </style>
 @endsection
@@ -62,6 +80,10 @@
             </div>
         @endif
 
+        @if (session('success'))
+            <div class="success-message">{{ session('success') }}</div>
+        @endif
+
         <form method="POST" action="{{ route('profile.update') }}" class="profile-form" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -78,6 +100,26 @@
                 <div class="char-count"><span id="bioCount">{{ strlen(old('bio', $user->bio ?? '')) }}</span>/200</div>
             </div>
             <div><label>Photo de profil</label><input type="file" name="avatar" id="avatarInput" accept="image/*"></div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1rem;">
+                <div class="section-label">S&eacute;curit&eacute; du compte</div>
+                <div class="form-row">
+                    <div>
+                        <label>Mot de passe actuel</label>
+                        <input type="password" name="current_password" autocomplete="current-password" placeholder="Entre ton mot de passe actuel">
+                    </div>
+                    <div>
+                        <label>Nouveau mot de passe</label>
+                        <input type="password" name="password" autocomplete="new-password" placeholder="Minimum 8 caract&egrave;res">
+                    </div>
+                </div>
+                <div>
+                    <label>Confirmer le nouveau mot de passe</label>
+                    <input type="password" name="password_confirmation" autocomplete="new-password" placeholder="R&eacute;p&egrave;te le nouveau mot de passe">
+                </div>
+                <div class="field-note">Laisse ces champs vides si tu ne veux pas changer ton mot de passe.</div>
+            </div>
+
             <div>
                 <label>Visibilit&eacute;</label>
                 <select name="visibilite">
@@ -113,7 +155,38 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-save">Enregistrer</button>
+            {{-- Settings: dark mode + language --}}
+            <div style="border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1rem;">
+                <div class="section-label">{{ __('app.settings_dark_mode') }} &amp; {{ __('app.settings_language') }}</div>
+                <div class="toggle-row">
+                    <span class="toggle-label">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;margin-right:0.4rem;vertical-align:middle;"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                        {{ __('app.settings_dark_mode') }}
+                    </span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="dark_mode" value="1" {{ old('dark_mode', $user->dark_mode) ? 'checked' : '' }}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row" style="border-bottom:none;margin-top:0.5rem;">
+                    <span class="toggle-label">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;margin-right:0.4rem;vertical-align:middle;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                        {{ __('app.settings_language') }}
+                    </span>
+                    <div class="lang-options">
+                        <label class="lang-option">
+                            <input type="radio" name="langue" value="fr" {{ old('langue', $user->langue ?? 'fr') === 'fr' ? 'checked' : '' }}>
+                            <span>🇫🇷 {{ __('app.settings_french') }}</span>
+                        </label>
+                        <label class="lang-option">
+                            <input type="radio" name="langue" value="en" {{ old('langue', $user->langue ?? 'fr') === 'en' ? 'checked' : '' }}>
+                            <span>🇬🇧 {{ __('app.settings_english') }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save">{{ __('app.save') }}</button>
         </form>
     </div>
 

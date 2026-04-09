@@ -224,12 +224,44 @@ class GroupController extends Controller
         return back()->with('success', 'Utilisateur ajouté au groupe.');
     }
 
+    /** Rename the group (admin only) */
+    public function update(Request $request, Group $group)
+    {
+        $this->requireAdmin($group);
+
+        $request->validate([
+            'nom'         => 'required|string|max:60',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $group->update($request->only('nom', 'description'));
+
+        return back()->with('success', 'Groupe renommé.');
+    }
+
+    /** Delete the group and all its data (admin only) */
+    public function destroy(Group $group)
+    {
+        $this->requireAdmin($group);
+
+        // Cascade: messages and members are deleted via DB cascade on group_id FK.
+        // Avatar cleanup
+        if ($group->avatar_url) {
+            Storage::disk('public')->delete($group->avatar_url);
+        }
+
+        $group->delete();
+
+        return redirect()->route('groups.index')->with('success', 'Groupe supprimé.');
+    }
+
     /** Assert current user is an admin of the group */
     private function requireAdmin(Group $group): void
     {
         $userId = Auth::id();
-        $isAdmin = $group->members()->wherePivot('role', 'admin')->where('user_id', $userId)->exists();
-        if (!$isAdmin) {
+        $isAppAdmin = Auth::user()->role === 'admin';
+        $isGroupAdmin = $group->members()->wherePivot('role', 'admin')->where('user_id', $userId)->exists();
+        if (!$isGroupAdmin && !$isAppAdmin) {
             abort(403);
         }
     }

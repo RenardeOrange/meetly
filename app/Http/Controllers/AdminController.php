@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
+use App\Models\Group;
 use App\Models\Interet;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,9 +13,11 @@ class AdminController extends Controller
     public function dashboard()
     {
         $stats = [
-            'users' => User::count(),
-            'interets' => Interet::count(),
-            'blacklisted' => User::where('blacklisted', true)->count(),
+            'users'      => User::count(),
+            'interets'   => Interet::count(),
+            'blacklisted'=> User::where('blacklisted', true)->count(),
+            'groups'     => Group::count(),
+            'events'     => Event::count(),
         ];
 
         return view('admin.dashboard', compact('stats'));
@@ -119,5 +123,93 @@ class AdminController extends Controller
         $interet->delete();
 
         return redirect()->route('admin.interets')->with('success', 'Interet supprime.');
+    }
+
+    // ── Groups ────────────────────────────────────────────────────────────
+
+    public function groups(Request $request)
+    {
+        $query = Group::with(['creator', 'members']);
+
+        if ($search = $request->get('search')) {
+            $query->where('nom', 'like', "%{$search}%");
+        }
+
+        $groups = $query->orderByDesc('created_at')->get();
+
+        return view('admin.groups', compact('groups'));
+    }
+
+    public function updateGroup(Request $request, Group $group)
+    {
+        $request->validate([
+            'nom'         => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+            'est_public'  => 'boolean',
+        ]);
+
+        $group->update([
+            'nom'         => $request->input('nom'),
+            'description' => $request->input('description'),
+            'est_public'  => $request->boolean('est_public'),
+        ]);
+
+        return redirect()->route('admin.groups')->with('success', 'Groupe mis a jour.');
+    }
+
+    public function deleteGroup(Group $group)
+    {
+        if ($group->avatar_url) {
+            \Storage::disk('public')->delete($group->avatar_url);
+        }
+
+        $group->delete();
+
+        return redirect()->route('admin.groups')->with('success', 'Groupe supprime.');
+    }
+
+    // ── Events ────────────────────────────────────────────────────────────
+
+    public function events(Request $request)
+    {
+        $query = Event::with(['creator', 'group', 'confirmedParticipants']);
+
+        if ($search = $request->get('search')) {
+            $query->where('titre', 'like', "%{$search}%");
+        }
+
+        $events = $query->orderByDesc('created_at')->get();
+
+        return view('admin.events', compact('events'));
+    }
+
+    public function updateEvent(Request $request, Event $event)
+    {
+        $request->validate([
+            'titre'            => 'required|string|max:100',
+            'description'      => 'nullable|string|max:2000',
+            'date_evenement'   => 'required|date',
+            'heure_debut'      => 'required',
+            'lieu'             => 'nullable|string|max:200',
+            'max_participants' => 'nullable|integer|min:2',
+            'prix'             => 'nullable|numeric|min:0',
+            'type_acces'       => 'required|in:public,sur_demande,prive',
+            'statut'           => 'required|in:actif,annule,complet',
+        ]);
+
+        $event->update($request->only(
+            'titre', 'description', 'date_evenement', 'heure_debut',
+            'lieu', 'max_participants', 'prix', 'type_acces', 'statut'
+        ));
+
+        return redirect()->route('admin.events')->with('success', 'Evenement mis a jour.');
+    }
+
+    public function deleteEvent(Event $event)
+    {
+        $event->participants()->detach();
+        $event->delete();
+
+        return redirect()->route('admin.events')->with('success', 'Evenement supprime.');
     }
 }

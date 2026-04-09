@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     .admin-grid { display: grid; gap: 1.5rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .stat-card, .admin-links { padding: 1.4rem; }
     .stat-card h2, .admin-links h2 { color: rgba(255, 255, 255, 0.75); font-size: 0.86rem; text-transform: uppercase; margin-bottom: 0.55rem; }
     .stat-card strong { color: #fff; font-size: 2rem; }
@@ -22,13 +22,17 @@
         <div class="card stat-card"><h2>Utilisateurs</h2><strong>{{ $stats['users'] }}</strong></div>
         <div class="card stat-card"><h2>Interets</h2><strong>{{ $stats['interets'] }}</strong></div>
         <div class="card stat-card"><h2>Blacklist</h2><strong>{{ $stats['blacklisted'] }}</strong></div>
+        <div class="card stat-card"><h2>Groupes</h2><strong>{{ $stats['groups'] }}</strong></div>
+        <div class="card stat-card"><h2>Evenements</h2><strong>{{ $stats['events'] }}</strong></div>
     </div>
     <div class="card admin-links">
         <h2>Administration</h2>
-        <p>Le panneau admin permet les CRUD sur les comptes utilisateurs, les hobbies et la blacklist.</p>
+        <p>Le panneau admin permet les CRUD sur les comptes utilisateurs, les hobbies, les groupes et les evenements.</p>
         <div class="admin-actions">
             <a href="{{ route('admin.users') }}">Gerer les utilisateurs</a>
             <a href="{{ route('admin.interets') }}">Gerer les interets</a>
+            <a href="{{ route('admin.groups') }}">Gerer les groupes</a>
+            <a href="{{ route('admin.events') }}">Gerer les evenements</a>
         </div>
     </div>
 </div>

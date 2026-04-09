@@ -234,7 +234,7 @@
                         @endif
                         @php $score = $chat->matchScore ?? 0; @endphp
                         <span class="match-score-pill {{ $score >= 60 ? 'high' : ($score >= 30 ? 'mid' : '') }}">
-                            ♥ {{ $score }}% en commun
+                            {{ $score }}% en commun
                         </span>
                     </div>
                     <div class="request-actions">

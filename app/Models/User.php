@@ -27,6 +27,8 @@ class User extends Authenticatable
         'position',
         'numero_programme',
         'type_connexion',
+        'dark_mode',
+        'langue',
     ];
 
     protected $hidden = [
@@ -40,6 +42,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'blacklisted' => 'boolean',
+            'dark_mode' => 'boolean',
             'type_connexion' => 'array',
         ];
     }
