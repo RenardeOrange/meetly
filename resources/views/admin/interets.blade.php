@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Admin interets')
+@section('title', 'Admin intérêts')
 
 @section('styles')
 <style>
@@ -27,12 +27,12 @@
 @section('content')
 <div class="admin-interests">
     <aside class="card panel">
-        <h1>Ajouter un interet</h1>
+        <h1>Ajouter un intérêt</h1>
         <p>CRUD admin sur les hobbies et la taxonomie.</p>
         <form method="POST" action="{{ route('admin.interets.store') }}" class="create-form">
             @csrf
-            <input type="text" name="nom" placeholder="Nom de l'interet" required>
-            <input type="text" name="categorie" placeholder="Categorie" list="categories" required>
+            <input type="text" name="nom" placeholder="Nom de l'intérêt" required>
+            <input type="text" name="categorie" placeholder="Catégorie" list="categories" required>
             <button type="submit">Ajouter</button>
         </form>
         <datalist id="categories">
@@ -44,7 +44,7 @@
     </aside>
 
     <section class="card panel">
-        <h2>Liste des interets</h2>
+        <h2>Liste des intérêts</h2>
         <div class="category-list">
             @foreach ($interets as $categorie => $liste)
                 <div class="category-block">
@@ -59,7 +59,7 @@
                                     <input type="text" name="categorie" value="{{ $interet->categorie }}" required>
                                     <button type="submit" class="save-btn">Sauver</button>
                                 </form>
-                                <form method="POST" action="{{ route('admin.interets.delete', $interet) }}" class="delete-form" onsubmit="return confirm('Supprimer cet interet ?');">
+                                <form method="POST" action="{{ route('admin.interets.delete', $interet) }}" class="delete-form" onsubmit="return confirm('Supprimer cet intérêt ?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit">Supprimer</button>

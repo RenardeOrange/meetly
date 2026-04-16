@@ -28,8 +28,31 @@
     .char-count { text-align: right; color: rgba(255,255,255,0.6); font-size: 0.74rem; margin-top: 0.35rem; }
     .field-note { color: rgba(255,255,255,0.6); font-size: 0.76rem; line-height: 1.5; margin-top: -0.35rem; }
     .side-stack { display: grid; gap: 1.5rem; }
-    .interest-chips { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-    .interest-chip { padding: 0.45rem 0.8rem; border-radius: 999px; background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; }
+    /* Removable chips */
+    .interest-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .interest-chip { display: inline-flex; align-items: center; gap: 0.32rem; padding: 0.38rem 0.5rem 0.38rem 0.78rem; border-radius: 999px; background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; }
+    .chip-rm-btn { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 0.68rem; padding: 0; line-height: 1; transition: background 0.15s; flex-shrink: 0; }
+    .chip-rm-btn:hover { background: rgba(231,76,60,0.65); color: #fff; }
+
+    /* Interest picker */
+    .btn-add-interests { width: 100%; margin-top: 0.9rem; border: 1px dashed rgba(255,255,255,0.3); border-radius: 999px; padding: 0.7rem 1rem; background: transparent; color: rgba(255,255,255,0.75); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.2s; }
+    .btn-add-interests:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.5); }
+    .interest-picker { margin-top: 0.9rem; display: none; }
+    .interest-picker.open { display: block; }
+    .picker-search { width: 100%; box-sizing: border-box; padding: 0.7rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.82rem; margin-bottom: 0.75rem; }
+    .picker-search::placeholder { color: rgba(255,255,255,0.4); }
+    .picker-cat { border-radius: 12px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 0.5rem; }
+    .picker-cat:last-child { margin-bottom: 0; }
+    .picker-cat-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; background: none; border: none; color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .picker-cat-toggle svg { width: 14px; height: 14px; fill: currentColor; transition: transform 0.2s; flex-shrink: 0; }
+    .picker-cat.open .picker-cat-toggle svg { transform: rotate(180deg); }
+    .picker-cat-body { display: none; padding: 0 0.75rem 0.75rem; }
+    .picker-cat.open .picker-cat-body { display: block; }
+    .picker-items { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .picker-item { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.32rem 0.65rem; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); font-size: 0.74rem; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .picker-item:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    .picker-item.selected { background: rgba(46,204,113,0.22); color: #2ecc71; border-color: rgba(46,204,113,0.5); font-weight: 600; }
+    .picker-item.item-hidden { display: none; }
     .section-label { color: rgba(255,255,255,0.55); font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.65rem; margin-top: 0.25rem; }
     .connexion-options { display: flex; flex-wrap: wrap; gap: 0.55rem; }
     .connexion-option { position: relative; }
@@ -192,17 +215,51 @@
 
     <div class="side-stack">
         <div class="card profile-panel">
-            <div class="side-title">Mes int&eacute;r&ecirc;ts</div>
-            @if ($user->interets->isNotEmpty())
-                <div class="interest-chips">
-                    @foreach ($user->interets->sortBy(fn ($i) => $i->categorie . '|' . $i->nom) as $interet)
-                        <span class="interest-chip">{{ $interet->nom }}</span>
-                    @endforeach
-                </div>
-            @else
-                <p class="empty-copy">Aucun int&eacute;r&ecirc;t s&eacute;lectionn&eacute; pour le moment.</p>
-            @endif
-            <a href="{{ route('interets.index') }}" class="btn-manage">Ajouter ou retirer mes int&eacute;r&ecirc;ts</a>
+            <div class="side-title" style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+                <span>Mes int&eacute;r&ecirc;ts <span id="interetCount" style="font-size:.72rem;font-weight:600;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);padding:.15rem .5rem;border-radius:999px;">{{ $user->interets->count() }}</span></span>
+                <a href="{{ route('dashboard') }}" style="font-size:.72rem;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;padding:.2rem .6rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;white-space:nowrap;">&#128202; Tableau de bord</a>
+            </div>
+
+            @php $userInteretIds = $user->interets->pluck('id')->all(); @endphp
+
+            <div class="interest-chips" id="profileChips">
+                @forelse ($user->interets->sortBy(fn ($i) => $i->categorie . '|' . $i->nom) as $interet)
+                    <span class="interest-chip" data-id="{{ $interet->id }}">
+                        {{ $interet->nom }}
+                        <button type="button" class="chip-rm-btn" data-id="{{ $interet->id }}" title="Retirer">✕</button>
+                    </span>
+                @empty
+                    <p class="empty-copy" id="profileEmptyMsg">Aucun int&eacute;r&ecirc;t s&eacute;lectionn&eacute; pour le moment.</p>
+                @endforelse
+            </div>
+
+            <button type="button" class="btn-add-interests" id="togglePicker">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Ajouter des int&eacute;r&ecirc;ts
+            </button>
+
+            <div class="interest-picker" id="interestPicker">
+                <input type="text" class="picker-search" id="pickerSearch" placeholder="Rechercher…" autocomplete="off">
+                @foreach ($interetsParCategorie as $categorie => $interets)
+                    <div class="picker-cat" data-cat>
+                        <button type="button" class="picker-cat-toggle">
+                            {{ $categorie }}
+                            <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        </button>
+                        <div class="picker-cat-body">
+                            <div class="picker-items">
+                                @foreach ($interets as $interet)
+                                    <span class="picker-item {{ in_array($interet->id, $userInteretIds) ? 'selected' : '' }}"
+                                          data-id="{{ $interet->id }}"
+                                          data-name="{{ mb_strtolower($interet->nom) }}">
+                                        {{ $interet->nom }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>
@@ -228,5 +285,129 @@
         };
         reader.readAsDataURL(file);
     });
+
+    // ── Interest picker (AJAX) ──
+    const csrfToken    = document.querySelector('meta[name="csrf-token"]').content;
+    const toggleRoute  = '{{ route("interets.toggle") }}';
+    const chipsEl      = document.getElementById('profileChips');
+    const pickerEl     = document.getElementById('interestPicker');
+    const togglePickerBtn = document.getElementById('togglePicker');
+    const pickerSearch = document.getElementById('pickerSearch');
+
+    // Open / close picker
+    togglePickerBtn?.addEventListener('click', () => {
+        pickerEl.classList.toggle('open');
+        if (pickerEl.classList.contains('open')) {
+            pickerSearch.value = '';
+            filterPickerItems('');
+            pickerSearch.focus();
+        }
+    });
+
+    // Collapsible picker categories
+    pickerEl?.querySelectorAll('.picker-cat-toggle').forEach(btn => {
+        btn.addEventListener('click', () => btn.closest('.picker-cat').classList.toggle('open'));
+    });
+
+    // Picker search filter
+    pickerSearch?.addEventListener('input', function () {
+        filterPickerItems(this.value.trim().toLowerCase());
+    });
+
+    function filterPickerItems(q) {
+        pickerEl.querySelectorAll('.picker-cat').forEach(cat => {
+            const items = cat.querySelectorAll('.picker-item');
+            let vis = 0;
+            items.forEach(item => {
+                const match = q === '' || (item.dataset.name || '').includes(q);
+                item.classList.toggle('item-hidden', !match);
+                if (match) vis++;
+            });
+            if (q !== '') cat.classList.toggle('open', vis > 0);
+            cat.style.display = vis === 0 && q !== '' ? 'none' : '';
+        });
+    }
+
+    const fetchHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrfToken
+    };
+
+    // Toggle interest via click on picker item
+    pickerEl?.addEventListener('click', e => {
+        const item = e.target.closest('.picker-item');
+        if (!item) return;
+        const interetId = item.dataset.id;
+
+        fetch(toggleRoute, {
+            method: 'POST',
+            headers: fetchHeaders,
+            body: JSON.stringify({ interet_id: interetId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'added') {
+                item.classList.add('selected');
+                addChip(interetId, item.textContent.trim());
+            } else {
+                item.classList.remove('selected');
+                removeChip(interetId);
+            }
+        });
+    });
+
+    // Remove chip via × button on existing chips
+    chipsEl?.addEventListener('click', e => {
+        const btn = e.target.closest('.chip-rm-btn');
+        if (!btn) return;
+        const interetId = btn.dataset.id;
+
+        fetch(toggleRoute, {
+            method: 'POST',
+            headers: fetchHeaders,
+            body: JSON.stringify({ interet_id: interetId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'removed') {
+                removeChip(interetId);
+                const pickerItem = pickerEl?.querySelector(`.picker-item[data-id="${interetId}"]`);
+                if (pickerItem) pickerItem.classList.remove('selected');
+            }
+        });
+    });
+
+    const countBadge = document.getElementById('interetCount');
+
+    function updateCount(delta) {
+        if (!countBadge) return;
+        countBadge.textContent = Math.max(0, parseInt(countBadge.textContent || '0') + delta);
+    }
+
+    function addChip(id, name) {
+        document.getElementById('profileEmptyMsg')?.remove();
+        if (chipsEl.querySelector(`.interest-chip[data-id="${id}"]`)) return;
+        const chip = document.createElement('span');
+        chip.className = 'interest-chip';
+        chip.dataset.id = id;
+        chip.innerHTML = `${name} <button type="button" class="chip-rm-btn" data-id="${id}" title="Retirer">✕</button>`;
+        chipsEl.appendChild(chip);
+        updateCount(+1);
+    }
+
+    function removeChip(id) {
+        const chip = chipsEl.querySelector(`.interest-chip[data-id="${id}"]`);
+        if (!chip) return;
+        chip.remove();
+        updateCount(-1);
+        if (!chipsEl.querySelector('.interest-chip')) {
+            const p = document.createElement('p');
+            p.className = 'empty-copy';
+            p.id = 'profileEmptyMsg';
+            p.textContent = "Aucun intérêt sélectionné pour le moment.";
+            chipsEl.appendChild(p);
+        }
+    }
 </script>
 @endsection

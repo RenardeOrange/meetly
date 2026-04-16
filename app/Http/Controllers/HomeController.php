@@ -20,6 +20,9 @@ class HomeController extends Controller
             ->unique()
             ->values();
 
+        // Ensure current user's interests are loaded for matchScore computation
+        $user->loadMissing('interets');
+
         $usersToSwipe = User::query()
             ->with('interets')
             ->where('id', '!=', $user->id)
@@ -48,8 +51,12 @@ class HomeController extends Controller
                 $query->where('user_1_id', $user->id);
             })
             ->orderByDesc('id')
-            ->limit(10)
+            ->limit(20)
             ->get();
+
+        // Compute match scores and sort by descending score (profiles with shared interests first)
+        $matchScores = $usersToSwipe->mapWithKeys(fn ($p) => [$p->id => $user->matchScore($p)]);
+        $usersToSwipe = $usersToSwipe->sortByDesc(fn ($p) => $matchScores[$p->id])->values()->take(10);
 
         $interetsParCategorie = Interet::query()
             ->orderBy('categorie')
@@ -60,6 +67,7 @@ class HomeController extends Controller
         return view('home', [
             'user'                 => $user,
             'usersToSwipe'         => $usersToSwipe,
+            'matchScores'          => $matchScores,
             'interetsParCategorie' => $interetsParCategorie,
             'selectedInterets'     => $selectedInterets->all(),
             'search'               => $request->string('search')->toString(),

@@ -75,7 +75,7 @@
                         </div>
                         <div class="user-card-info">
                             <div class="user-card-name">{{ $user->prenom }} {{ $user->nom }}</div>
-                            <div class="user-card-meta">{{ $user->email }} &bull; {{ $user->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($user->numero_programme) &bull; {{ $user->numero_programme }}@endif</div>
+                            <div class="user-card-meta">{{ $user->email }} &bull; {{ $user->position === 'etudiant' ? 'Étudiant(e)' : 'Personnel' }}@if($user->numero_programme) &bull; {{ $user->numero_programme }}@endif</div>
                         </div>
                     </div>
 
@@ -85,16 +85,16 @@
 
                     <div class="user-badges">
                         <span class="badge {{ $user->blacklisted ? 'badge-blacklisted' : 'badge-active' }}">
-                            {{ $user->blacklisted ? 'Blackliste' : 'Actif' }}
+                            {{ $user->blacklisted ? 'Blacklisté' : 'Actif' }}
                         </span>
                         @if ($user->role === 'admin')
                             <span class="badge badge-admin">Admin</span>
                         @endif
-                        <span class="badge badge-interests">{{ $user->interets->count() }} interet(s)</span>
+                        <span class="badge badge-interests">{{ $user->interets->count() }} intérêt(s)</span>
                         @if ($user->email_verified_at)
-                            <span class="badge badge-active">Courriel verifie</span>
+                            <span class="badge badge-active">Courriel vérifié</span>
                         @else
-                            <span class="badge badge-blacklisted">Non verifie</span>
+                            <span class="badge badge-blacklisted">Non vérifié</span>
                         @endif
                     </div>
 
@@ -108,7 +108,7 @@
                             <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         <select name="position" required>
-                            <option value="etudiant" {{ $user->position === 'etudiant' ? 'selected' : '' }}>Etudiant</option>
+                            <option value="etudiant" {{ $user->position === 'etudiant' ? 'selected' : '' }}>Étudiant</option>
                             <option value="personnel" {{ $user->position === 'personnel' ? 'selected' : '' }}>Personnel</option>
                         </select>
                         <button type="submit">Modifier</button>

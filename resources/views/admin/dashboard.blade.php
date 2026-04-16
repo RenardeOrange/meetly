@@ -20,19 +20,19 @@
 <div class="admin-grid">
     <div class="stats-grid">
         <div class="card stat-card"><h2>Utilisateurs</h2><strong>{{ $stats['users'] }}</strong></div>
-        <div class="card stat-card"><h2>Interets</h2><strong>{{ $stats['interets'] }}</strong></div>
+        <div class="card stat-card"><h2>Intérêts</h2><strong>{{ $stats['interets'] }}</strong></div>
         <div class="card stat-card"><h2>Blacklist</h2><strong>{{ $stats['blacklisted'] }}</strong></div>
         <div class="card stat-card"><h2>Groupes</h2><strong>{{ $stats['groups'] }}</strong></div>
-        <div class="card stat-card"><h2>Evenements</h2><strong>{{ $stats['events'] }}</strong></div>
+        <div class="card stat-card"><h2>Événements</h2><strong>{{ $stats['events'] }}</strong></div>
     </div>
     <div class="card admin-links">
         <h2>Administration</h2>
-        <p>Le panneau admin permet les CRUD sur les comptes utilisateurs, les hobbies, les groupes et les evenements.</p>
+        <p>Le panneau admin permet les CRUD sur les comptes utilisateurs, les hobbies, les groupes et les événements.</p>
         <div class="admin-actions">
-            <a href="{{ route('admin.users') }}">Gerer les utilisateurs</a>
-            <a href="{{ route('admin.interets') }}">Gerer les interets</a>
-            <a href="{{ route('admin.groups') }}">Gerer les groupes</a>
-            <a href="{{ route('admin.events') }}">Gerer les evenements</a>
+            <a href="{{ route('admin.users') }}">Gérer les utilisateurs</a>
+            <a href="{{ route('admin.interets') }}">Gérer les intérêts</a>
+            <a href="{{ route('admin.groups') }}">Gérer les groupes</a>
+            <a href="{{ route('admin.events') }}">Gérer les événements</a>
         </div>
     </div>
 </div>

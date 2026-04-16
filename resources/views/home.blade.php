@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Decouvrir')
+@section('title', 'Découvrir')
 
 @section('styles')
 <style>
@@ -67,6 +67,12 @@
     .empty-state { text-align: center; color: rgba(255,255,255,0.8); padding: 3rem 1rem; }
     .empty-state svg { width: 80px; height: 80px; fill: rgba(255,255,255,0.3); margin-bottom: 1rem; }
     .empty-state h2 { color: #fff; margin-bottom: 0.5rem; }
+
+    /* ── Match score pill on swipe card ── */
+    .card-match-score { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; margin-top: 0.6rem; }
+    .card-match-score.high  { background: rgba(46,204,113,0.22); color: #2ecc71; border: 1px solid rgba(46,204,113,0.45); }
+    .card-match-score.mid   { background: rgba(253,216,53,0.18); color: #fdd835; border: 1px solid rgba(253,216,53,0.4); }
+    .card-match-score.low   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.18); }
 
     @media (max-width: 960px) { .discover-layout { grid-template-columns: 1fr; } }
     @media (max-width: 480px) { .swipe-container { width: 300px; height: 420px; } }
@@ -156,6 +162,8 @@
                             'gaming'    => '&#127918; Gaming',
                         ];
                         $profileConnexions = $profile->type_connexion ?? [];
+                        $score = $matchScores[$profile->id] ?? 0;
+                        $scoreCls = $score >= 60 ? 'high' : ($score >= 30 ? 'mid' : 'low');
                     @endphp
                     <div class="swipe-card" data-user-id="{{ $profile->id }}">
                         <span class="swipe-indicator like-indicator">OUI</span>
@@ -168,7 +176,8 @@
                             @endif
                         </div>
                         <div class="profile-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
-                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
+                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Étudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
+                        <span class="card-match-score {{ $scoreCls }}">&#10024; {{ $score }}% en commun</span>
                         @if($profile->bio)<div class="profile-bio">{{ $profile->bio }}</div>@endif
                         @if(!empty($profileConnexions) || $profile->interets->isNotEmpty())
                             <div class="profile-tags">

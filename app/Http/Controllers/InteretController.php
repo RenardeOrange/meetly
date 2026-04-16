@@ -11,21 +11,11 @@ class InteretController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $userInteretIds = $user->interets()->pluck('interets.id')->all();
-        $search = trim((string) $request->get('search', ''));
-        $selectedCategorie = $request->get('categorie', '');
 
-        $query = Interet::query();
+        $userInterets   = $user->interets()->orderBy('categorie')->orderBy('nom')->get();
+        $userInteretIds = $userInterets->pluck('id')->all();
 
-        if ($search !== '') {
-            $query->where('nom', 'like', "%{$search}%");
-        }
-
-        if ($selectedCategorie !== '') {
-            $query->where('categorie', $selectedCategorie);
-        }
-
-        $interets = $query
+        $interets = Interet::query()
             ->orderBy('categorie')
             ->orderBy('nom')
             ->get()
@@ -38,11 +28,10 @@ class InteretController extends Controller
             ->pluck('categorie');
 
         return view('interests.index', [
-            'interets' => $interets,
-            'categories' => $categories,
-            'userInteretIds' => $userInteretIds,
-            'search' => $search,
-            'selectedCategorie' => $selectedCategorie,
+            'interets'          => $interets,
+            'userInterets'      => $userInterets,
+            'categories'        => $categories,
+            'userInteretIds'    => $userInteretIds,
         ]);
     }
 
@@ -52,17 +41,17 @@ class InteretController extends Controller
             'interet_id' => 'required|exists:interets,id',
         ]);
 
-        $user = Auth::user();
+        $user      = Auth::user();
         $interetId = (int) $validated['interet_id'];
 
         if ($user->interets()->where('interets.id', $interetId)->exists()) {
             $user->interets()->detach($interetId);
-            $status = 'removed';
-            $message = 'Interet retire de votre profil.';
+            $status  = 'removed';
+            $message = 'Intérêt retiré de ton profil.';
         } else {
             $user->interets()->syncWithoutDetaching([$interetId]);
-            $status = 'added';
-            $message = 'Interet ajoute a votre profil.';
+            $status  = 'added';
+            $message = 'Intérêt ajouté à ton profil.';
         }
 
         if ($request->expectsJson()) {
