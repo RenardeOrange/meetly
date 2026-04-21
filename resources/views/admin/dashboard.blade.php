@@ -22,6 +22,7 @@
         <div class="card stat-card"><h2>Utilisateurs</h2><strong>{{ $stats['users'] }}</strong></div>
         <div class="card stat-card"><h2>Intérêts</h2><strong>{{ $stats['interets'] }}</strong></div>
         <div class="card stat-card"><h2>Blacklist</h2><strong>{{ $stats['blacklisted'] }}</strong></div>
+        <div class="card stat-card"><h2>Signalements</h2><strong>{{ $stats['flagged'] }}</strong></div>
         <div class="card stat-card"><h2>Groupes</h2><strong>{{ $stats['groups'] }}</strong></div>
         <div class="card stat-card"><h2>Événements</h2><strong>{{ $stats['events'] }}</strong></div>
     </div>
@@ -33,6 +34,7 @@
             <a href="{{ route('admin.interets') }}">Gérer les intérêts</a>
             <a href="{{ route('admin.groups') }}">Gérer les groupes</a>
             <a href="{{ route('admin.events') }}">Gérer les événements</a>
+            <a href="{{ route('admin.flagged') }}">Voir les comptes signal&eacute;s</a>
         </div>
     </div>
 </div>

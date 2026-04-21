@@ -1,13 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Découvrir')
+@section('title', 'Decouvrir')
 
 @section('styles')
 <style>
-    /* ── Layout ── */
     .discover-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
-
-    /* ── Filter sidebar ── */
     .filters-card { padding: 1.2rem; }
     .filter-section-title { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
     .filter-section-title svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
@@ -15,8 +12,6 @@
     .filter-form > label { display: block; color: rgba(255,255,255,0.85); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; }
     .filter-form input[type="text"] { width: 100%; padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.85rem; }
     .filter-form input::placeholder { color: rgba(255,255,255,0.5); }
-
-    /* Collapsible interest section */
     .filter-group { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
     .filter-group-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.9rem; background: none; border: none; color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
     .filter-group-toggle .chevron { width: 16px; height: 16px; fill: currentColor; transition: transform 0.25s; flex-shrink: 0; }
@@ -30,24 +25,22 @@
     .interest-option input { position: absolute; opacity: 0; }
     .interest-option span { display: inline-flex; align-items: center; padding: 0.3rem 0.65rem; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: 0.72rem; cursor: pointer; }
     .interest-option input:checked + span { background: #fff; color: #c0392b; font-weight: 700; }
-
     .filter-actions { display: flex; gap: 0.6rem; }
     .btn-filter, .btn-reset { flex: 1; border: none; border-radius: 999px; padding: 0.8rem 1rem; font-weight: 700; text-decoration: none; text-align: center; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.85rem; }
     .btn-filter { background: #fff; color: #c0392b; }
     .btn-reset { background: rgba(255,255,255,0.14); color: #fff; }
 
-    /* ── Swipe section ── */
     .swipe-section { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; padding: 1.4rem; }
     .swipe-title { color: #fff; font-size: 1.2rem; font-weight: 700; text-align: center; }
+    .swipe-top-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; margin-top: -0.4rem; }
+    .btn-utility { display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 1rem; border-radius: 999px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.82); font-size: 0.78rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; }
+    .btn-utility:hover { background: rgba(255,255,255,0.15); color: #fff; }
     .swipe-container { position: relative; width: 340px; height: 460px; }
-
-    /* Only top card visible */
     .swipe-card { position: absolute; width: 100%; height: 100%; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 2px solid rgba(255,255,255,0.25); border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: grab; user-select: none; transition: transform 0.4s ease, opacity 0.4s ease; will-change: transform; visibility: hidden; pointer-events: none; }
     .swipe-card.top-card { visibility: visible; pointer-events: auto; }
     .swipe-card.swiping { transition: none; cursor: grabbing; }
     .swipe-card.swipe-right { transform: translateX(150%) rotate(20deg); opacity: 0; visibility: visible; }
-    .swipe-card.swipe-left  { transform: translateX(-150%) rotate(-20deg); opacity: 0; visibility: visible; }
-
+    .swipe-card.swipe-left { transform: translateX(-150%) rotate(-20deg); opacity: 0; visibility: visible; }
     .profile-avatar { width: 95px; height: 95px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 1.1rem; overflow: hidden; }
     .profile-avatar svg { width: 46px; height: 46px; fill: rgba(255,255,255,0.8); }
     .profile-name { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
@@ -59,6 +52,10 @@
     .profile-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.9rem; justify-content: center; }
     .profile-interest { padding: 0.28rem 0.58rem; border-radius: 999px; background: rgba(255,255,255,0.16); color: #fff; font-size: 0.7rem; }
     .profile-connexion { padding: 0.25rem 0.52rem; border-radius: 999px; background: rgba(100,210,255,0.18); color: rgba(180,235,255,0.95); font-size: 0.68rem; border: 1px solid rgba(100,210,255,0.3); }
+    .profile-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .profile-action-btn { border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+    .profile-action-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .profile-action-btn.danger { border-color: rgba(255,123,114,0.32); color: #ffd3d0; background: rgba(231,76,60,0.14); }
     .swipe-buttons { display: flex; gap: 1.5rem; margin-top: 0.4rem; }
     .swipe-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .swipe-btn svg { width: 28px; height: 28px; }
@@ -67,17 +64,11 @@
     .empty-state { text-align: center; color: rgba(255,255,255,0.8); padding: 3rem 1rem; }
     .empty-state svg { width: 80px; height: 80px; fill: rgba(255,255,255,0.3); margin-bottom: 1rem; }
     .empty-state h2 { color: #fff; margin-bottom: 0.5rem; }
-
-    /* ── Match score pill on swipe card ── */
     .card-match-score { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; margin-top: 0.6rem; }
-    .card-match-score.high  { background: rgba(46,204,113,0.22); color: #2ecc71; border: 1px solid rgba(46,204,113,0.45); }
-    .card-match-score.mid   { background: rgba(253,216,53,0.18); color: #fdd835; border: 1px solid rgba(253,216,53,0.4); }
-    .card-match-score.low   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.18); }
+    .card-match-score.high { background: rgba(46,204,113,0.22); color: #2ecc71; border: 1px solid rgba(46,204,113,0.45); }
+    .card-match-score.mid { background: rgba(253,216,53,0.18); color: #fdd835; border: 1px solid rgba(253,216,53,0.4); }
+    .card-match-score.low { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.18); }
 
-    @media (max-width: 960px) { .discover-layout { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .swipe-container { width: 300px; height: 420px; } }
-
-    /* ── Message request modal ── */
     .msg-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
     .msg-modal-overlay.hidden { display: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -92,18 +83,19 @@
     .msg-modal-actions { display: flex; gap: 0.75rem; }
     .msg-modal-cancel { flex: 1; padding: 0.8rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); background: transparent; color: rgba(255,255,255,0.75); font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
     .msg-modal-send { flex: 2; padding: 0.8rem; border-radius: 999px; border: none; background: #fff; color: #c0392b; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
-    .msg-modal-send:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* ── Match toast ── */
+    .report-modal textarea { min-height: 120px; }
+    .report-modal-send { flex: 2; padding: 0.8rem; border-radius: 999px; border: none; background: linear-gradient(135deg, #ff7b72, #e74c3c); color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
     .match-toast { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; font-weight: 700; font-size: 1rem; padding: 0.9rem 2rem; border-radius: 999px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); z-index: 10000; animation: toastIn 0.3s ease; }
+    .match-toast.info { background: linear-gradient(135deg, #4b5d73, #22313f); }
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 960px) { .discover-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .swipe-container { width: 300px; height: 420px; } }
 </style>
 @endsection
 
 @section('content')
 <div class="discover-layout">
-
-    {{-- ── Filter sidebar ── --}}
     <aside class="card filters-card">
         <div class="filter-section-title">
             <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zm-7-10v2h18V8H3zm3 7h12v-2H6v2z"/></svg>
@@ -147,19 +139,23 @@
         </form>
     </aside>
 
-    {{-- ── Swipe section ── --}}
     <section class="card swipe-section">
         <h2 class="swipe-title">D&eacute;couvrir des profils</h2>
-        @if($usersToSwipe->count() > 0)
+        <div class="swipe-top-actions">
+            <a href="{{ route('dashboard') }}" class="btn-utility">{{ $hasSwipeHistory ? 'Historique et retours' : 'Voir mon tableau de bord' }}</a>
+            <a href="{{ route('dashboard') }}#tab-blocked" class="btn-utility">Utilisateurs bloqu&eacute;s</a>
+        </div>
+
+        @if ($usersToSwipe->count() > 0)
             <div class="swipe-container" id="swipeContainer">
-                @foreach($usersToSwipe->reverse() as $profile)
+                @foreach ($usersToSwipe->reverse() as $profile)
                     @php
                         $connexionLabels = [
-                            'amitie'    => '&#128075; Amiti&eacute;',
+                            'amitie' => '&#128075; Amiti&eacute;',
                             'activites' => '&#127939; Activit&eacute;s',
-                            'etudes'    => '&#128218; &Eacute;tudes',
-                            'sorties'   => '&#127917; Sorties',
-                            'gaming'    => '&#127918; Gaming',
+                            'etudes' => '&#128218; &Eacute;tudes',
+                            'sorties' => '&#127917; Sorties',
+                            'gaming' => '&#127918; Gaming',
                         ];
                         $profileConnexions = $profile->type_connexion ?? [];
                         $score = $matchScores[$profile->id] ?? 0;
@@ -176,22 +172,29 @@
                             @endif
                         </div>
                         <div class="profile-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
-                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Étudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
+                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
                         <span class="card-match-score {{ $scoreCls }}">&#10024; {{ $score }}% en commun</span>
-                        @if($profile->bio)<div class="profile-bio">{{ $profile->bio }}</div>@endif
-                        @if(!empty($profileConnexions) || $profile->interets->isNotEmpty())
+                        @if ($profile->bio)
+                            <div class="profile-bio">{{ $profile->bio }}</div>
+                        @endif
+                        @if (!empty($profileConnexions) || $profile->interets->isNotEmpty())
                             <div class="profile-tags">
-                                @foreach($profileConnexions as $c)
-                                    <span class="profile-connexion">{!! $connexionLabels[$c] ?? $c !!}</span>
+                                @foreach ($profileConnexions as $c)
+                                    <span class="profile-connexion">{!! $connexionLabels[$c] ?? e($c) !!}</span>
                                 @endforeach
-                                @foreach($profile->interets->take(4) as $interet)
+                                @foreach ($profile->interets->take(4) as $interet)
                                     <span class="profile-interest">{{ $interet->nom }}</span>
                                 @endforeach
                             </div>
                         @endif
+                        <div class="profile-actions">
+                            <button type="button" class="profile-action-btn btn-report-profile">Signaler</button>
+                            <button type="button" class="profile-action-btn danger btn-block-profile">Bloquer</button>
+                        </div>
                     </div>
                 @endforeach
             </div>
+
             <div class="swipe-buttons">
                 <button class="swipe-btn btn-nope" id="btnNope" title="Passer"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
                 <button class="swipe-btn btn-like" id="btnLike" title="Connecter"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></button>
@@ -206,17 +209,41 @@
     </section>
 </div>
 
-{{-- ── Message request modal ── --}}
 <div class="msg-modal-overlay hidden" id="msgModal">
     <div class="msg-modal">
-        <div class="msg-modal-title">Envoie un message à <span id="msgModalName"></span></div>
-        <div class="msg-modal-sub">Ils verront ton message si tu les intéresses.</div>
+        <div class="msg-modal-title">Envoie un message &agrave; <span id="msgModalName"></span></div>
+        <div class="msg-modal-sub">Ils verront ton message si tu les int&eacute;resses.</div>
         <textarea id="msgModalText" rows="3" maxlength="500" placeholder="Dis quelque chose de sympa..."></textarea>
         <div class="msg-modal-chars"><span id="msgModalCount">0</span>/500</div>
-        <div class="msg-modal-error" id="msgModalError">Écris un petit message avant d'envoyer.</div>
+        <div class="msg-modal-error" id="msgModalError">Ecris un petit message avant d'envoyer.</div>
         <div class="msg-modal-actions">
-            <button class="msg-modal-cancel" id="msgModalCancel">Annuler</button>
-            <button class="msg-modal-send" id="msgModalSend">Envoyer ✓</button>
+            <button class="msg-modal-cancel" id="msgModalCancel" type="button">Annuler</button>
+            <button class="msg-modal-send" id="msgModalSend" type="button">Envoyer</button>
+        </div>
+    </div>
+</div>
+
+<div class="msg-modal-overlay hidden" id="reportModal">
+    <div class="msg-modal report-modal">
+        <div class="msg-modal-title">Signaler <span id="reportModalName"></span></div>
+        <div class="msg-modal-sub">Explique ce qui pose probleme pour que l'administration puisse examiner le compte.</div>
+        <textarea id="reportModalText" maxlength="1000" placeholder="Pourquoi signales-tu ce compte ?"></textarea>
+        <div class="msg-modal-chars"><span id="reportModalCount">0</span>/1000</div>
+        <div class="msg-modal-error" id="reportModalError">Ajoute un motif avant d'envoyer le signalement.</div>
+        <div class="msg-modal-actions">
+            <button class="msg-modal-cancel" id="reportModalCancel" type="button">Annuler</button>
+            <button class="report-modal-send" id="reportModalSend" type="button">Envoyer le signalement</button>
+        </div>
+    </div>
+</div>
+
+<div class="msg-modal-overlay hidden" id="blockModal">
+    <div class="msg-modal report-modal">
+        <div class="msg-modal-title">Bloquer <span id="blockModalName"></span></div>
+        <div class="msg-modal-sub">Cette personne disparaitra de tes swipes, demandes et conversations.</div>
+        <div class="msg-modal-actions">
+            <button class="msg-modal-cancel" id="blockModalCancel" type="button">Annuler</button>
+            <button class="report-modal-send" id="blockModalConfirm" type="button">Confirmer le blocage</button>
         </div>
     </div>
 </div>
@@ -224,7 +251,6 @@
 
 @section('scripts')
 <script>
-    // Collapsible filter groups
     document.querySelectorAll('.filter-group-toggle').forEach(btn => {
         btn.addEventListener('click', function () {
             const body = document.getElementById(this.dataset.target);
@@ -234,129 +260,264 @@
         });
     });
 
-    // Swipe
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    let currentCard = null, startX = 0, currentX = 0, isDragging = false;
+    const swipeContainer = document.getElementById('swipeContainer');
+    const msgModal = document.getElementById('msgModal');
+    const msgText = document.getElementById('msgModalText');
+    const msgCount = document.getElementById('msgModalCount');
+    const msgError = document.getElementById('msgModalError');
+    const reportModal = document.getElementById('reportModal');
+    const reportText = document.getElementById('reportModalText');
+    const reportCount = document.getElementById('reportModalCount');
+    const reportError = document.getElementById('reportModalError');
+    const blockModal = document.getElementById('blockModal');
+
+    let currentCard = null;
     let pendingLikeCard = null;
+    let pendingReportCard = null;
+    let pendingBlockCard = null;
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    function getVisibleCards() {
+        return Array.from(document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)'));
+    }
 
     function getTopCard() {
-        const cards = document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)');
+        const cards = getVisibleCards();
         return cards.length ? cards[cards.length - 1] : null;
     }
 
     function updateTopCard() {
-        document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)').forEach(c => c.classList.remove('top-card'));
+        getVisibleCards().forEach(card => card.classList.remove('top-card'));
         const top = getTopCard();
         if (top) top.classList.add('top-card');
     }
 
-    function showMatchToast(text) {
-        const t = document.createElement('div');
-        t.className = 'match-toast';
-        t.textContent = text;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+    function showToast(text, tone = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `match-toast${tone === 'info' ? ' info' : ''}`;
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function postJson(url, payload = {}) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || data.message || 'Une erreur est survenue.');
+        return data;
     }
 
     function doSwipeAnimation(card, direction) {
-        const visible = Array.from(document.querySelectorAll('.swipe-card:not(.swipe-left):not(.swipe-right)'));
+        if (!card) return;
+        const visible = getVisibleCards();
         if (visible.length > 1) visible[visible.length - 2].classList.add('top-card');
         card.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
         card.classList.remove('top-card');
-        setTimeout(() => { card.remove(); updateTopCard(); }, 400);
+        setTimeout(() => {
+            card.remove();
+            updateTopCard();
+        }, 400);
     }
 
-    function submitLike(card, message) {
-        const userId = card.dataset.userId;
-        doSwipeAnimation(card, 'right');
-        fetch('/swipe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: JSON.stringify({ user_id: userId, action: 'like', message })
-        }).then(r => r.json()).then(data => {
-            if (data.status === 'matched') showMatchToast('🎉 ' + data.message);
-        });
+    function openMessageModal(card) {
+        pendingLikeCard = card;
+        document.getElementById('msgModalName').textContent = card.querySelector('.profile-name').textContent.trim();
+        msgText.value = '';
+        msgCount.textContent = '0';
+        msgError.style.display = 'none';
+        msgModal.classList.remove('hidden');
+        setTimeout(() => msgText.focus(), 50);
     }
 
-    function swipeCard(direction) {
-        const card = getTopCard();
-        if (!card) return;
-
-        if (direction === 'right') {
-            // Show message modal instead of swiping immediately
-            pendingLikeCard = card;
-            document.getElementById('msgModalName').textContent = card.querySelector('.profile-name').textContent.trim();
-            document.getElementById('msgModalText').value = '';
-            document.getElementById('msgModalCount').textContent = '0';
-            document.getElementById('msgModalError').style.display = 'none';
-            document.getElementById('msgModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('msgModalText').focus(), 50);
-            return;
-        }
-
-        // Pass — animate and call backend
-        doSwipeAnimation(card, 'left');
-        fetch('/swipe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: JSON.stringify({ user_id: card.dataset.userId, action: 'pass' })
-        });
-    }
-
-    // Modal logic
-    const msgModal  = document.getElementById('msgModal');
-    const msgText   = document.getElementById('msgModalText');
-    const msgCount  = document.getElementById('msgModalCount');
-    const msgError  = document.getElementById('msgModalError');
-
-    msgText.addEventListener('input', () => {
-        msgCount.textContent = msgText.value.length;
-        if (msgText.value.trim()) msgError.style.display = 'none';
-    });
-
-    document.getElementById('msgModalSend').addEventListener('click', () => {
-        const message = msgText.value.trim();
-        if (!message) { msgError.style.display = 'block'; return; }
+    function closeMessageModal() {
         msgModal.classList.add('hidden');
-        submitLike(pendingLikeCard, message);
-        pendingLikeCard = null;
-    });
-
-    document.getElementById('msgModalCancel').addEventListener('click', () => {
-        msgModal.classList.add('hidden');
-        // Reset card to centre
         if (pendingLikeCard) {
             pendingLikeCard.style.transform = '';
             pendingLikeCard.querySelector('.like-indicator').style.opacity = 0;
         }
         pendingLikeCard = null;
+    }
+
+    function openReportModal(card) {
+        pendingReportCard = card;
+        document.getElementById('reportModalName').textContent = card.querySelector('.profile-name').textContent.trim();
+        reportText.value = '';
+        reportCount.textContent = '0';
+        reportError.style.display = 'none';
+        reportModal.classList.remove('hidden');
+        setTimeout(() => reportText.focus(), 50);
+    }
+
+    function closeReportModal() {
+        reportModal.classList.add('hidden');
+        pendingReportCard = null;
+    }
+
+    function openBlockModal(card) {
+        pendingBlockCard = card;
+        document.getElementById('blockModalName').textContent = card.querySelector('.profile-name').textContent.trim();
+        blockModal.classList.remove('hidden');
+    }
+
+    function closeBlockModal() {
+        blockModal.classList.add('hidden');
+        pendingBlockCard = null;
+    }
+
+    async function submitLike(card, message) {
+        doSwipeAnimation(card, 'right');
+        try {
+            const data = await postJson('/swipe', { user_id: card.dataset.userId, action: 'like', message });
+            if (data.status === 'matched') showToast(data.message);
+        } catch (error) {
+            showToast(error.message, 'info');
+        }
+    }
+
+    async function submitPass(card) {
+        doSwipeAnimation(card, 'left');
+        try {
+            await postJson('/swipe', { user_id: card.dataset.userId, action: 'pass' });
+        } catch (error) {
+            showToast(error.message, 'info');
+        }
+    }
+
+    async function confirmBlock(card) {
+        try {
+            const data = await postJson(`/profiles/${card.dataset.userId}/block`);
+            closeBlockModal();
+            doSwipeAnimation(card, 'left');
+            showToast(data.message, 'info');
+        } catch (error) {
+            closeBlockModal();
+            showToast(error.message, 'info');
+        }
+    }
+
+    function swipeCard(direction) {
+        const card = getTopCard();
+        if (!card) return;
+        if (direction === 'right') return openMessageModal(card);
+        submitPass(card);
+    }
+
+    msgText?.addEventListener('input', () => {
+        msgCount.textContent = msgText.value.length;
+        if (msgText.value.trim()) msgError.style.display = 'none';
     });
 
-    // Close on overlay click
-    msgModal.addEventListener('click', e => {
-        if (e.target === msgModal) document.getElementById('msgModalCancel').click();
+    reportText?.addEventListener('input', () => {
+        reportCount.textContent = reportText.value.length;
+        if (reportText.value.trim()) reportError.style.display = 'none';
+    });
+
+    document.getElementById('msgModalSend')?.addEventListener('click', () => {
+        const message = msgText.value.trim();
+        if (!message) {
+            msgError.style.display = 'block';
+            return;
+        }
+
+        const card = pendingLikeCard;
+        closeMessageModal();
+        if (card) submitLike(card, message);
+    });
+
+    document.getElementById('msgModalCancel')?.addEventListener('click', closeMessageModal);
+    document.getElementById('reportModalCancel')?.addEventListener('click', closeReportModal);
+    document.getElementById('blockModalCancel')?.addEventListener('click', closeBlockModal);
+    document.getElementById('blockModalConfirm')?.addEventListener('click', () => {
+        if (pendingBlockCard) confirmBlock(pendingBlockCard);
+    });
+
+    document.getElementById('reportModalSend')?.addEventListener('click', async () => {
+        const reason = reportText.value.trim();
+        if (!reason) {
+            reportError.style.display = 'block';
+            return;
+        }
+
+        const card = pendingReportCard;
+        if (!card) return;
+
+        try {
+            const data = await postJson(`/profiles/${card.dataset.userId}/report`, { reason });
+            closeReportModal();
+            showToast(data.message, 'info');
+        } catch (error) {
+            reportError.textContent = error.message;
+            reportError.style.display = 'block';
+        }
+    });
+
+    msgModal?.addEventListener('click', event => {
+        if (event.target === msgModal) closeMessageModal();
+    });
+
+    reportModal?.addEventListener('click', event => {
+        if (event.target === reportModal) closeReportModal();
+    });
+
+    blockModal?.addEventListener('click', event => {
+        if (event.target === blockModal) closeBlockModal();
     });
 
     document.getElementById('btnNope')?.addEventListener('click', () => swipeCard('left'));
     document.getElementById('btnLike')?.addEventListener('click', () => swipeCard('right'));
 
-    document.addEventListener('pointerdown', e => {
-        currentCard = getTopCard();
-        if (!currentCard || !currentCard.contains(e.target)) return;
-        isDragging = true; startX = e.clientX;
-        currentCard.classList.add('swiping');
-        currentCard.setPointerCapture(e.pointerId);
+    swipeContainer?.addEventListener('click', event => {
+        const reportButton = event.target.closest('.btn-report-profile');
+        if (reportButton) {
+            const card = reportButton.closest('.swipe-card');
+            if (card) openReportModal(card);
+            return;
+        }
+
+        const blockButton = event.target.closest('.btn-block-profile');
+        if (blockButton) {
+            const card = blockButton.closest('.swipe-card');
+            if (card) openBlockModal(card);
+        }
     });
-    document.addEventListener('pointermove', e => {
+
+    document.addEventListener('pointerdown', event => {
+        currentCard = getTopCard();
+        if (!currentCard || !currentCard.contains(event.target) || event.target.closest('.profile-action-btn')) return;
+        isDragging = true;
+        startX = event.clientX;
+        currentCard.classList.add('swiping');
+        currentCard.setPointerCapture(event.pointerId);
+    });
+
+    document.addEventListener('pointermove', event => {
         if (!isDragging || !currentCard) return;
-        currentX = e.clientX - startX;
+        currentX = event.clientX - startX;
         currentCard.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.08}deg)`;
         const like = currentCard.querySelector('.like-indicator');
         const nope = currentCard.querySelector('.nope-indicator');
-        const op = Math.min(Math.abs(currentX) / 100, 1);
-        if (currentX > 0) { like.style.opacity = op; nope.style.opacity = 0; }
-        else { nope.style.opacity = op; like.style.opacity = 0; }
+        const opacity = Math.min(Math.abs(currentX) / 100, 1);
+        if (currentX > 0) {
+            like.style.opacity = opacity;
+            nope.style.opacity = 0;
+        } else {
+            nope.style.opacity = opacity;
+            like.style.opacity = 0;
+        }
     });
+
     document.addEventListener('pointerup', () => {
         if (!isDragging || !currentCard) return;
         isDragging = false;
@@ -367,9 +528,11 @@
         else if (currentX < -100) swipeCard('left');
         else {
             currentCard.style.transform = '';
-            like.style.opacity = 0; nope.style.opacity = 0;
+            like.style.opacity = 0;
+            nope.style.opacity = 0;
         }
-        currentCard = null; currentX = 0;
+        currentCard = null;
+        currentX = 0;
     });
 
     updateTopCard();

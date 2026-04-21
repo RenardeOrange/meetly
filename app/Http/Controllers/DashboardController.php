@@ -12,6 +12,10 @@ class DashboardController extends Controller
     {
         $user   = Auth::user();
         $userId = $user->id;
+        $blockedUsers = $user->blocksInitiated()
+            ->with('blocked')
+            ->latest()
+            ->get();
 
         // ── Swipes I made (I'm always user_1 when I swipe) ──
         $myLikes = Match_::where('user_1_id', $userId)
@@ -65,7 +69,7 @@ class DashboardController extends Controller
             'myLikes', 'myPasses', 'incomingLikes', 'mutualMatches',
             'totalLikes', 'totalPasses', 'totalIncoming', 'totalMatches',
             'totalSwipes', 'acceptanceRate', 'likeRatio', 'returnRate',
-            'history'
+            'history', 'blockedUsers'
         ));
     }
 

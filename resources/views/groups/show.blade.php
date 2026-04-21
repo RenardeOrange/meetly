@@ -51,6 +51,9 @@
     .group-sidebar { display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
     .sidebar-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.18); border-radius: 16px; padding: 1.1rem; }
     .sidebar-title { color: rgba(255,255,255,0.7); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; }
+    .sidebar-card-danger { background: linear-gradient(180deg, rgba(120,18,24,0.72), rgba(70,10,16,0.9)); border: 1px solid rgba(255,132,132,0.38); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 32px rgba(30,4,8,0.28); }
+    .sidebar-card-danger .sidebar-title { color: #ffd6d6; }
+    .danger-copy { color: rgba(255,226,226,0.82); font-size: 0.78rem; line-height: 1.5; margin: -0.15rem 0 0.85rem; }
     .member-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
     .member-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .member-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
@@ -62,6 +65,8 @@
     .pill-private { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border-radius: 999px; padding: 0.2rem 0.55rem; font-size: 0.7rem; }
     .btn-leave { width: 100%; border: 1px solid rgba(231,76,60,0.4); background: transparent; color: rgba(231,76,60,0.8); border-radius: 999px; padding: 0.55rem; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-leave:hover { background: rgba(231,76,60,0.15); }
+    .btn-danger-solid { border-color: rgba(255,255,255,0.08); background: linear-gradient(180deg, #ff7b72, #e74c3c); color: #fff; box-shadow: 0 10px 22px rgba(231,76,60,0.28); }
+    .btn-danger-solid:hover { background: linear-gradient(180deg, #ff8a81, #ef5f4f); box-shadow: 0 14px 28px rgba(231,76,60,0.34); transform: translateY(-1px); }
     .admin-actions { display: flex; gap: 0.35rem; margin-left: auto; }
     .btn-admin-sm { border: none; border-radius: 999px; padding: 0.2rem 0.55rem; font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-kick  { background: rgba(231,76,60,0.2); color: #e74c3c; }
@@ -243,13 +248,14 @@
             </div>
 
             {{-- Delete group --}}
-            <div class="sidebar-card">
-                <div class="sidebar-title" style="color:rgba(231,76,60,0.8);">Zone dangereuse</div>
+            <div class="sidebar-card sidebar-card-danger">
+                <div class="sidebar-title">Zone dangereuse</div>
+                <p class="danger-copy">Cette action supprime définitivement le groupe, ses messages et ses membres.</p>
                 <form method="POST" action="{{ route('groups.destroy', $group) }}"
                       onsubmit="return confirm('Supprimer le groupe « {{ $group->nom }} » et tous ses membres ? Cette action est irréversible.')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-leave" style="color:rgba(231,76,60,0.9);">Supprimer le groupe</button>
+                    <button type="submit" class="btn-leave btn-danger-solid">Supprimer le groupe</button>
                 </form>
             </div>
         @endif

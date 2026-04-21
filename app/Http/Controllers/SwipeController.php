@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\Match_;
 use App\Models\Message;
 use App\Models\Notification;
+use App\Models\UserBlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -24,7 +25,30 @@ class SwipeController extends Controller
         $userId   = Auth::id();
         $targetId = $request->user_id;
 
+        if ($userId === (int) $targetId) {
+            return response()->json(['error' => 'Action invalide.'], 422);
+        }
+
+        $isBlocked = UserBlock::query()
+            ->where(function ($query) use ($userId, $targetId) {
+                $query->where('blocker_id', $userId)->where('blocked_id', $targetId);
+            })
+            ->orWhere(function ($query) use ($userId, $targetId) {
+                $query->where('blocker_id', $targetId)->where('blocked_id', $userId);
+            })
+            ->exists();
+
+        if ($isBlocked) {
+            return response()->json(['error' => 'Ce profil n est plus disponible.'], 422);
+        }
+
         if ($request->action === 'pass') {
+            Match_::query()
+                ->where('user_1_id', $userId)
+                ->where('user_2_id', $targetId)
+                ->where('statut', 'refuse')
+                ->delete();
+
             Match_::create([
                 'user_1_id' => $userId,
                 'user_2_id' => $targetId,

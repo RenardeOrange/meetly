@@ -6,7 +6,9 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Models\Interet;
 use App\Models\User;
+use App\Models\UserReport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -16,6 +18,7 @@ class AdminController extends Controller
             'users'      => User::count(),
             'interets'   => Interet::count(),
             'blacklisted'=> User::where('blacklisted', true)->count(),
+            'flagged'    => UserReport::whereNull('reviewed_at')->count(),
             'groups'     => Group::count(),
             'events'     => Event::count(),
         ];
@@ -35,9 +38,23 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->with('interets')->orderByDesc('created_at')->get();
+        $users = $query->with('interets')->withCount([
+            'reportsReceived as open_reports_count' => fn ($reportQuery) => $reportQuery->whereNull('reviewed_at'),
+        ])->orderByDesc('created_at')->get();
 
         return view('admin.users', compact('users'));
+    }
+
+    public function flagged()
+    {
+        $reports = UserReport::query()
+            ->with(['reporter', 'reportedUser.interets', 'reviewer'])
+            ->orderByRaw('CASE WHEN reviewed_at IS NULL THEN 0 ELSE 1 END')
+            ->latest()
+            ->get()
+            ->groupBy('reported_user_id');
+
+        return view('admin.flagged', compact('reports'));
     }
 
     public function updateUser(Request $request, User $user)
@@ -60,9 +77,11 @@ class AdminController extends Controller
             return back()->with('error', 'Impossible de supprimer un administrateur.');
         }
 
+        $this->markReportsReviewedForUser($user);
+
         $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Utilisateur supprime.');
+        return back()->with('success', 'Utilisateur supprime.');
     }
 
     public function toggleBlacklist(User $user)
@@ -71,9 +90,23 @@ class AdminController extends Controller
             'blacklisted' => !$user->blacklisted,
         ]);
 
+        if ($user->blacklisted) {
+            $this->markReportsReviewedForUser($user);
+        }
+
         $status = $user->blacklisted ? 'blackliste' : 'debloque';
 
-        return redirect()->route('admin.users')->with('success', "Utilisateur {$status}.");
+        return back()->with('success', "Utilisateur {$status}.");
+    }
+
+    public function reviewReport(UserReport $report)
+    {
+        $report->update([
+            'reviewed_at' => now(),
+            'reviewed_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.flagged')->with('success', 'Signalement marque comme traite.');
     }
 
     public function interets()
@@ -211,5 +244,16 @@ class AdminController extends Controller
         $event->delete();
 
         return redirect()->route('admin.events')->with('success', 'Evenement supprime.');
+    }
+
+    protected function markReportsReviewedForUser(User $user): void
+    {
+        UserReport::query()
+            ->where('reported_user_id', $user->id)
+            ->whereNull('reviewed_at')
+            ->update([
+                'reviewed_at' => now(),
+                'reviewed_by' => Auth::id(),
+            ]);
     }
 }

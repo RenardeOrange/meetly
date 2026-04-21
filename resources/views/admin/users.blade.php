@@ -29,6 +29,7 @@
     .badge-active { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); }
     .badge-admin { background: rgba(241,196,15,0.2); color: #f1c40f; border: 1px solid rgba(241,196,15,0.4); }
     .badge-interests { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); }
+    .badge-flagged { background: rgba(255,123,114,0.2); color: #ffb4ae; border: 1px solid rgba(255,123,114,0.4); }
     .update-form { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)) auto; gap: 0.65rem; align-items: center; margin-bottom: 0.75rem; }
     .update-form input, .update-form select { width: 100%; padding: 0.7rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.12); color: #fff; font-family: 'Poppins', sans-serif; outline: none; }
     .update-form select option { color: #222; }
@@ -48,11 +49,12 @@
 @section('content')
 <div class="admin-users">
     <div class="card panel">
-        <h1>Panneau administrateur — Comptes utilisateurs</h1>
+        <h1>Panneau administrateur - Comptes utilisateurs</h1>
         <div class="stats-row">
             <span class="stat-chip">{{ $users->count() }} utilisateur(s)</span>
             <span class="stat-chip">{{ $users->where('blacklisted', true)->count() }} blackliste(s)</span>
             <span class="stat-chip">{{ $users->where('role', 'admin')->count() }} admin(s)</span>
+            <span class="stat-chip">{{ $users->sum('open_reports_count') }} signalement(s) ouverts</span>
         </div>
         <form method="GET" action="{{ route('admin.users') }}" class="search-bar">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Chercher par nom, prenom ou courriel">
@@ -75,7 +77,7 @@
                         </div>
                         <div class="user-card-info">
                             <div class="user-card-name">{{ $user->prenom }} {{ $user->nom }}</div>
-                            <div class="user-card-meta">{{ $user->email }} &bull; {{ $user->position === 'etudiant' ? 'Étudiant(e)' : 'Personnel' }}@if($user->numero_programme) &bull; {{ $user->numero_programme }}@endif</div>
+                            <div class="user-card-meta">{{ $user->email }} &bull; {{ $user->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($user->numero_programme) &bull; {{ $user->numero_programme }}@endif</div>
                         </div>
                     </div>
 
@@ -85,16 +87,19 @@
 
                     <div class="user-badges">
                         <span class="badge {{ $user->blacklisted ? 'badge-blacklisted' : 'badge-active' }}">
-                            {{ $user->blacklisted ? 'Blacklisté' : 'Actif' }}
+                            {{ $user->blacklisted ? 'Blackliste' : 'Actif' }}
                         </span>
                         @if ($user->role === 'admin')
                             <span class="badge badge-admin">Admin</span>
                         @endif
-                        <span class="badge badge-interests">{{ $user->interets->count() }} intérêt(s)</span>
+                        <span class="badge badge-interests">{{ $user->interets->count() }} interet(s)</span>
+                        @if ($user->open_reports_count > 0)
+                            <span class="badge badge-flagged">{{ $user->open_reports_count }} signalement(s)</span>
+                        @endif
                         @if ($user->email_verified_at)
-                            <span class="badge badge-active">Courriel vérifié</span>
+                            <span class="badge badge-active">Courriel verifie</span>
                         @else
-                            <span class="badge badge-blacklisted">Non vérifié</span>
+                            <span class="badge badge-blacklisted">Non verifie</span>
                         @endif
                     </div>
 
@@ -108,13 +113,16 @@
                             <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         <select name="position" required>
-                            <option value="etudiant" {{ $user->position === 'etudiant' ? 'selected' : '' }}>Étudiant</option>
+                            <option value="etudiant" {{ $user->position === 'etudiant' ? 'selected' : '' }}>Etudiant</option>
                             <option value="personnel" {{ $user->position === 'personnel' ? 'selected' : '' }}>Personnel</option>
                         </select>
                         <button type="submit">Modifier</button>
                     </form>
 
                     <div class="action-row">
+                        @if ($user->open_reports_count > 0)
+                            <a href="{{ route('admin.flagged') }}" class="action-btn action-btn-blacklist" style="text-decoration:none;">Voir signalements</a>
+                        @endif
                         <form method="POST" action="{{ route('admin.users.blacklist', $user) }}">
                             @csrf
                             <button type="submit" class="action-btn {{ $user->blacklisted ? 'action-btn-unblacklist' : 'action-btn-blacklist' }}">

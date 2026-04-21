@@ -62,6 +62,11 @@
     .match-date { color: rgba(255,255,255,.55); font-size: 0.74rem; margin-top: 0.15rem; }
     .match-link-btn { display: inline-block; margin-top: 0.5rem; font-size: 0.72rem; font-weight: 700; color: #2ecc71; text-decoration: none; }
     .match-link-btn:hover { text-decoration: underline; }
+    .blocked-list { display: grid; gap: 0.75rem; }
+    .blocked-item { display: flex; align-items: center; gap: 1rem; padding: 0.95rem 1rem; border-radius: 16px; background: rgba(231,76,60,.12); border: 1px solid rgba(231,76,60,.25); }
+    .blocked-meta { color: rgba(255,255,255,.58); font-size: 0.74rem; margin-top: 0.15rem; }
+    .blocked-actions { margin-left: auto; }
+    .btn-unblock { border: none; border-radius: 999px; padding: 0.45rem 0.9rem; font-family: 'Poppins', sans-serif; font-size: 0.74rem; font-weight: 700; cursor: pointer; background: #fff; color: #c0392b; }
 
     /* ── Empty state ── */
     .empty-state { text-align: center; padding: 2.5rem 1rem; color: rgba(255,255,255,.55); font-size: 0.88rem; }
@@ -87,7 +92,10 @@
                 <h2 style="font-size:1.2rem;margin-bottom:.2rem;">&#128202; Mon tableau de bord</h2>
                 <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:0;">Tes statistiques de swipe et ton historique.</p>
             </div>
-            <a href="{{ route('profile.edit') }}" class="back-link">&#8592; Profil</a>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+                <a href="{{ route('home') }}" class="back-link">D&eacute;couvrir</a>
+                <a href="{{ route('profile.edit') }}" class="back-link">&#8592; Profil</a>
+            </div>
         </div>
     </div>
 
@@ -142,6 +150,7 @@
             <button class="tab-btn" data-tab="passes">Passes ({{ $myPasses->count() }})</button>
             <button class="tab-btn" data-tab="incoming">Re&ccedil;us ({{ $incomingLikes->count() }})</button>
             <button class="tab-btn" data-tab="matches">Matchs ({{ $mutualMatches->count() }})</button>
+            <button class="tab-btn" data-tab="blocked" id="tab-button-blocked">Bloqu&eacute;s ({{ $blockedUsers->count() }})</button>
         </div>
 
         {{-- All swipes tab --}}
@@ -320,6 +329,40 @@
                 </div>
             @endif
         </div>
+
+        <div class="tab-pane" id="tab-blocked">
+            @if ($blockedUsers->isEmpty())
+                <div class="empty-state">Tu n'as bloqu&eacute; personne pour l'instant.</div>
+            @else
+                <div class="blocked-list">
+                    @foreach ($blockedUsers as $block)
+                        @php $profile = $block->blocked; @endphp
+                        <div class="blocked-item">
+                            <div class="history-avatar">
+                                @if ($profile?->avatar_url)
+                                    <img src="{{ asset('storage/' . $profile->avatar_url) }}" alt="">
+                                @else
+                                    <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                                @endif
+                            </div>
+                            <div class="history-info">
+                                <div class="history-name">{{ $profile?->prenom }} {{ $profile?->nom }}</div>
+                                <div class="blocked-meta">Bloqu&eacute; {{ $block->created_at->diffForHumans() }}</div>
+                            </div>
+                            <div class="blocked-actions">
+                                @if ($profile)
+                                    <form method="POST" action="{{ route('blocks.destroy', $profile) }}" onsubmit="return confirm('D&eacute;bloquer cet utilisateur ?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-unblock">D&eacute;bloquer</button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
 
 </div>
@@ -327,13 +370,24 @@
 
 @section('scripts')
 <script>
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    function activateTab(name) {
+        tabButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === name));
+        tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === 'tab-' + name));
+    }
+
+    tabButtons.forEach(btn => {
         btn.addEventListener('click', function () {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            activateTab(this.dataset.tab);
+            history.replaceState(null, '', `#tab-${this.dataset.tab}`);
         });
     });
+
+    const hashTab = window.location.hash.replace('#tab-', '');
+    if (hashTab && document.getElementById('tab-' + hashTab)) {
+        activateTab(hashTab);
+    }
 </script>
 @endsection

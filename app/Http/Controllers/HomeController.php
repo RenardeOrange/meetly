@@ -13,6 +13,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $blockedUserIds = $user->blockedUserIds()->merge($user->blockedByUserIds())->unique()->values();
 
         $selectedInterets = collect($request->input('interets', []))
             ->filter(fn ($id) => filled($id))
@@ -28,6 +29,7 @@ class HomeController extends Controller
             ->where('id', '!=', $user->id)
             ->where('blacklisted', false)
             ->where('visibilite', 'public')
+            ->when($blockedUserIds->isNotEmpty(), fn (Builder $query) => $query->whereNotIn('id', $blockedUserIds))
             ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $search = trim((string) $request->string('search'));
                 $query->where(function (Builder $nested) use ($search) {
@@ -71,6 +73,7 @@ class HomeController extends Controller
             'interetsParCategorie' => $interetsParCategorie,
             'selectedInterets'     => $selectedInterets->all(),
             'search'               => $request->string('search')->toString(),
+            'hasSwipeHistory'      => $user->matchesAsUser1()->exists(),
         ]);
     }
 }

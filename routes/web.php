@@ -8,6 +8,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InteretController;
+use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SwipeController;
 use Illuminate\Support\Facades\Route;
@@ -70,6 +71,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::delete('/dashboard/swipe/{match}', [DashboardController::class, 'undo'])->name('dashboard.undo');
+    Route::post('/profiles/{user}/report', [ModerationController::class, 'report'])->name('profiles.report');
+    Route::post('/profiles/{user}/block', [ModerationController::class, 'block'])->name('profiles.block');
+    Route::delete('/blocks/{user}', [ModerationController::class, 'unblock'])->name('blocks.destroy');
 
     Route::get('/interets', [InteretController::class, 'index'])->name('interets.index');
     Route::post('/interets/toggle', [InteretController::class, 'toggle'])->name('interets.toggle');
@@ -77,9 +81,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/flagged', [AdminController::class, 'flagged'])->name('flagged');
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::post('/users/{user}/blacklist', [AdminController::class, 'toggleBlacklist'])->name('users.blacklist');
         Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
+        Route::post('/reports/{report}/review', [AdminController::class, 'reviewReport'])->name('reports.review');
 
         Route::get('/interets', [AdminController::class, 'interets'])->name('interets');
         Route::post('/interets', [AdminController::class, 'storeInteret'])->name('interets.store');
