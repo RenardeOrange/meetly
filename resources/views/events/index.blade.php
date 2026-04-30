@@ -57,7 +57,7 @@
                         <span class="event-pill pill-{{ $event->statut }}">{{ ucfirst($event->statut) }}</span>
                     @endif
                     @if($event->creator_id === Auth::id())
-                        <span class="my-badge">Organisateur</span>
+                        <span class="my-badge">{{ __('app.event_organizer_badge') }}</span>
                     @endif
                 </div>
                 <div class="event-date">
@@ -146,8 +146,8 @@
 @if($myEvents->isEmpty() && $upcomingEvents->isEmpty() && $requestEvents->isEmpty())
     <div class="empty-state">
         <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:rgba(255,255,255,0.3);margin-bottom:1rem;display:block;margin-left:auto;margin-right:auto;"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-        Aucun événement disponible pour le moment.<br>
-        <a href="{{ route('events.create') }}" style="color:#fff;font-weight:600;">Crée le premier!</a>
+        {{ __('app.event_no_available') }}<br>
+        <a href="{{ route('events.create') }}" style="color:#fff;font-weight:600;">{{ __('app.event_create_first') }}</a>
     </div>
 @endif
 @endsection

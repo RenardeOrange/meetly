@@ -85,6 +85,15 @@
     .flash-msg { margin-bottom: 0.75rem; padding: 0.6rem 1rem; border-radius: 10px; font-size: 0.82rem; font-weight: 600; }
     .flash-success { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
     .flash-error   { background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); }
+    .visibility-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.15rem; }
+    .visibility-option { position: relative; }
+    .visibility-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .visibility-card { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.75rem 0.85rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.72); cursor: pointer; transition: all 0.2s ease; }
+    .visibility-card strong { color: #fff; font-size: 0.8rem; }
+    .visibility-card span { font-size: 0.7rem; line-height: 1.35; }
+    .visibility-option input:checked + .visibility-card { border-color: rgba(255,255,255,0.38); background: rgba(255,255,255,0.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); color: rgba(255,255,255,0.88); }
+    .visibility-option.public input:checked + .visibility-card { border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.16); }
+    .visibility-option.private input:checked + .visibility-card { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.11); }
 
     @media (max-width: 768px) { .group-chat-layout { grid-template-columns: 1fr; } .group-sidebar { display: none; } }
 </style>
@@ -108,7 +117,7 @@
             </div>
             <div>
                 <div class="group-header-name">{{ $group->nom }}</div>
-                <div class="group-header-sub">{{ $members->count() }} membre{{ $members->count() > 1 ? 's' : '' }}</div>
+                <div class="group-header-sub">{{ $members->count() }} {{ __('app.member') }}{{ $members->count() > 1 ? 's' : '' }}</div>
             </div>
         </div>
 
@@ -132,7 +141,7 @@
                     </div>
                 </div>
             @empty
-                <div class="empty-msgs">Soyez le premier à écrire quelque chose!</div>
+                <div class="empty-msgs">{{ __('app.group_first_message') }}</div>
             @endforelse
         </div>
 
@@ -140,7 +149,7 @@
             <div class="chat-input-area">
                 <form class="chat-input-form" method="POST" action="{{ route('groups.messages.store', $group) }}" id="msgForm">
                     @csrf
-                    <textarea name="contenu" id="msgInput" rows="1" placeholder="Écris un message au groupe…" maxlength="2000"></textarea>
+                    <textarea name="contenu" id="msgInput" rows="1" placeholder="{{ __('app.write_message_placeholder') }}" maxlength="2000"></textarea>
                     <button type="submit" class="btn-send">
                         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                     </button>
@@ -148,10 +157,10 @@
             </div>
         @elseif($group->est_public)
             <div class="not-member-bar">
-                <p>Rejoins ce groupe pour participer à la conversation.</p>
+                <p>{{ __('app.group_join_to_chat') }}</p>
                 <form method="POST" action="{{ route('groups.join', $group) }}">
                     @csrf
-                    <button type="submit" class="btn-join-bar">Rejoindre</button>
+                    <button type="submit" class="btn-join-bar">{{ __('app.join') }}</button>
                 </form>
             </div>
         @endif
@@ -161,9 +170,9 @@
     <aside class="group-sidebar">
         {{-- Group info --}}
         <div class="sidebar-card">
-            <div class="sidebar-title">À propos</div>
+            <div class="sidebar-title">{{ __('app.about') }}</div>
             <div style="margin-bottom:0.6rem;">
-                <span class="{{ $group->est_public ? 'pill-public' : 'pill-private' }}">{{ $group->est_public ? 'Public' : 'Privé' }}</span>
+                <span class="{{ $group->est_public ? 'pill-public' : 'pill-private' }}">{{ $group->est_public ? __('app.group_public') : __('app.group_private') }}</span>
             </div>
             @if($group->description)
                 <p style="color:rgba(255,255,255,0.7);font-size:0.82rem;line-height:1.5;margin-bottom:0.6rem;">{{ $group->description }}</p>
@@ -185,7 +194,7 @@
             @if(session('error'))
                 <div class="flash-msg flash-error">{{ session('error') }}</div>
             @endif
-            <div class="sidebar-title">Membres ({{ $members->count() }})</div>
+            <div class="sidebar-title">{{ __('app.members') }} ({{ $members->count() }})</div>
             @foreach($members as $member)
                 <div class="member-row">
                     <div class="member-avatar">
@@ -197,26 +206,26 @@
                     </div>
                     <div style="flex:1;min-width:0;">
                         <div class="member-name">{{ $member->prenom }} {{ $member->nom }}</div>
-                        <div class="member-role">{{ $member->pivot->role === 'admin' ? 'Admin' : 'Membre' }}</div>
+                        <div class="member-role">{{ $member->pivot->role === 'admin' ? __('app.role_admin') : __('app.role_member') }}</div>
                     </div>
                     @if($isAdmin && $member->id !== Auth::id())
                         <div class="admin-actions">
                             @if($member->pivot->role !== 'admin')
                                 <form method="POST" action="{{ route('groups.members.promote', [$group, $member]) }}">
                                     @csrf
-                                    <button type="submit" class="btn-admin-sm btn-promote" title="Promouvoir admin">▲</button>
+                                    <button type="submit" class="btn-admin-sm btn-promote" title="{{ __('app.promote_admin') }}">▲</button>
                                 </form>
                             @elseif($member->id !== $group->creator_id)
                                 <form method="POST" action="{{ route('groups.members.demote', [$group, $member]) }}">
                                     @csrf
-                                    <button type="submit" class="btn-admin-sm btn-demote" title="Rétrograder">▼</button>
+                                    <button type="submit" class="btn-admin-sm btn-demote" title="{{ __('app.demote') }}">▼</button>
                                 </form>
                             @endif
                             @if($member->id !== $group->creator_id)
                                 <form method="POST" action="{{ route('groups.members.kick', [$group, $member]) }}"
-                                      onsubmit="return confirm('Expulser {{ $member->prenom }}?')">
+                                      onsubmit="return confirm('{{ __('app.kick') }} {{ $member->prenom }}?')">
                                     @csrf
-                                    <button type="submit" class="btn-admin-sm btn-kick" title="Expulser">✕</button>
+                                    <button type="submit" class="btn-admin-sm btn-kick" title="{{ __('app.kick') }}">✕</button>
                                 </form>
                             @endif
                         </div>
@@ -228,34 +237,50 @@
         {{-- Invite (admin only) --}}
         @if($isAdmin)
             <div class="sidebar-card">
-                <div class="sidebar-title">Inviter quelqu'un</div>
+                <div class="sidebar-title">{{ __('app.invite_someone') }}</div>
                 <div class="invite-box">
-                    <input type="text" id="inviteSearch" class="invite-input" placeholder="Cherche par prénom ou nom…" autocomplete="off">
+                    <input type="text" id="inviteSearch" class="invite-input" placeholder="{{ __('app.invite_placeholder') }}" autocomplete="off">
                     <div class="invite-results" id="inviteResults"></div>
                 </div>
             </div>
 
             {{-- Rename group --}}
             <div class="sidebar-card">
-                <div class="sidebar-title">Renommer le groupe</div>
+                <div class="sidebar-title">{{ __('app.rename_group') }}</div>
                 <form method="POST" action="{{ route('groups.update', $group) }}" id="renameForm" style="display:grid;gap:0.5rem;">
                     @csrf
                     @method('PUT')
-                    <input type="text" name="nom" class="invite-input" value="{{ $group->nom }}" maxlength="60" required placeholder="Nom du groupe">
-                    <textarea name="description" class="invite-input" rows="2" maxlength="500" placeholder="Description (optionnelle)" style="resize:vertical;border-radius:12px;margin-top:0.2rem;">{{ $group->description }}</textarea>
-                    <button type="submit" style="background:#fff;color:#c0392b;border:none;border-radius:999px;padding:0.45rem 1rem;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:0.2rem;">Enregistrer</button>
+                    <input type="text" name="nom" class="invite-input" value="{{ $group->nom }}" maxlength="60" required placeholder="{{ __('app.group_name_input') }}">
+                    <textarea name="description" class="invite-input" rows="2" maxlength="500" placeholder="{{ __('app.group_desc_optional') }}" style="resize:vertical;border-radius:12px;margin-top:0.2rem;">{{ $group->description }}</textarea>
+                    <div class="visibility-options">
+                        <label class="visibility-option public">
+                            <input type="radio" name="est_public" value="1" {{ $group->est_public ? 'checked' : '' }}>
+                            <span class="visibility-card">
+                                <strong>{{ __('app.group_public') }}</strong>
+                                <span>{{ __('app.group_public_desc') }}</span>
+                            </span>
+                        </label>
+                        <label class="visibility-option private">
+                            <input type="radio" name="est_public" value="0" {{ !$group->est_public ? 'checked' : '' }}>
+                            <span class="visibility-card">
+                                <strong>{{ __('app.group_private') }}</strong>
+                                <span>Visible seulement aux membres invites.</span>
+                            </span>
+                        </label>
+                    </div>
+                    <button type="submit" style="background:#fff;color:#c0392b;border:none;border-radius:999px;padding:0.45rem 1rem;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:0.2rem;">{{ __('app.save') }}</button>
                 </form>
             </div>
 
             {{-- Delete group --}}
             <div class="sidebar-card sidebar-card-danger">
-                <div class="sidebar-title">Zone dangereuse</div>
-                <p class="danger-copy">Cette action supprime définitivement le groupe, ses messages et ses membres.</p>
+                <div class="sidebar-title">{{ __('app.danger_zone') }}</div>
+                <p class="danger-copy">{{ __('app.group_delete_warning') }}</p>
                 <form method="POST" action="{{ route('groups.destroy', $group) }}"
-                      onsubmit="return confirm('Supprimer le groupe « {{ $group->nom }} » et tous ses membres ? Cette action est irréversible.')">
+                      onsubmit="return confirm('{{ __('app.group_delete_confirm', ['name' => $group->nom]) }}')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-leave btn-danger-solid">Supprimer le groupe</button>
+                    <button type="submit" class="btn-leave btn-danger-solid">{{ __('app.delete_group') }}</button>
                 </form>
             </div>
         @endif
@@ -265,7 +290,7 @@
             <div class="sidebar-card">
                 <form method="POST" action="{{ route('groups.leave', $group) }}">
                     @csrf
-                    <button type="submit" class="btn-leave">Quitter le groupe</button>
+                    <button type="submit" class="btn-leave">{{ __('app.leave_group') }}</button>
                 </form>
             </div>
         @endif
@@ -311,7 +336,7 @@
                 .then(users => {
                     inviteResults.innerHTML = '';
                     if (!users.length) {
-                        inviteResults.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.78rem;padding:0.3rem 0;">Aucun résultat.</div>';
+                        inviteResults.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.78rem;padding:0.3rem 0;">{{ __('app.no_results') }}</div>';
                         return;
                     }
                     users.forEach(u => {

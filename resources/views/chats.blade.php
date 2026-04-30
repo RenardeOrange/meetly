@@ -210,7 +210,7 @@
     <div>
         <div class="chats-section-title">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fdd835;flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            Demandes de message
+            {{ __('app.message_requests') }}
             <span class="badge-count">{{ $pendingRequests->count() }}</span>
         </div>
         <div class="chat-list">
@@ -222,7 +222,7 @@
                 <div class="request-item">
                     <div class="chat-avatar">
                         @if($sender->avatar_url)
-                            <img src="{{ asset('storage/' . $sender->avatar_url) }}" alt="Avatar">
+                            <img src="{{ route('media.public', ['path' => $sender->avatar_url]) }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         @else
                             <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                         @endif
@@ -232,21 +232,24 @@
                         @if($firstMsg)
                             <div class="chat-preview">"{{ $firstMsg->contenu }}"</div>
                         @endif
-                        @php $score = $chat->matchScore ?? 0; @endphp
-                        <span class="match-score-pill {{ $score >= 60 ? 'high' : ($score >= 30 ? 'mid' : '') }}">
-                            {{ $score }}% en commun
+                        @php
+                            $score = $chat->matchScore ?? 0;
+                            $scoreLabel = rtrim(rtrim(number_format($score, 1, '.', ''), '0'), '.');
+                        @endphp
+                        <span class="match-score-pill {{ $score >= 4 ? 'high' : ($score >= 2 ? 'mid' : '') }}">
+                            {{ $scoreLabel }} {{ __('app.match_score') }}
                         </span>
                     </div>
                     <div class="request-actions">
                         <form method="POST" action="{{ route('chats.request.respond', $chat) }}">
                             @csrf
                             <input type="hidden" name="action" value="accept">
-                            <button type="submit" class="btn-accept">Accepter</button>
+                            <button type="submit" class="btn-accept">{{ __('app.accept') }}</button>
                         </form>
                         <form method="POST" action="{{ route('chats.request.respond', $chat) }}">
                             @csrf
                             <input type="hidden" name="action" value="decline">
-                            <button type="submit" class="btn-decline">Refuser</button>
+                            <button type="submit" class="btn-decline">{{ __('app.decline') }}</button>
                         </form>
                     </div>
                 </div>
@@ -259,7 +262,7 @@
     <div>
         <div class="chats-section-title">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:rgba(255,255,255,0.7);flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-            Messages
+            {{ __('app.nav_messages') }}
         </div>
 
         @if($chats->count() > 0)
@@ -274,7 +277,7 @@
                     <a href="{{ route('chats.show', $chat) }}" class="chat-item">
                         <div class="chat-avatar">
                             @if($otherUser->avatar_url)
-                                <img src="{{ asset('storage/' . $otherUser->avatar_url) }}" alt="Avatar">
+                                <img src="{{ route('media.public', ['path' => $otherUser->avatar_url]) }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             @else
                                 <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                             @endif
@@ -282,7 +285,7 @@
                         <div class="chat-info">
                             <div class="chat-name">{{ $otherUser->prenom }} {{ $otherUser->nom }}</div>
                             <div class="chat-preview">
-                                {{ $lastMessage ? $lastMessage->contenu : 'Aucun message encore' }}
+                                {{ $lastMessage ? $lastMessage->contenu : __('app.no_messages_preview') }}
                             </div>
                         </div>
                         @if($lastMessage && !$lastMessage->lu && $lastMessage->user_id !== Auth::id())
@@ -292,7 +295,7 @@
                 @endforeach
             </div>
         @else
-            <div class="empty-section">Aucune conversation active pour l'instant.</div>
+            <div class="empty-section">{{ __('app.no_active_chats') }}</div>
         @endif
     </div>
 
@@ -301,7 +304,7 @@
     <div>
         <div class="chats-section-title" style="color:rgba(255,255,255,0.6)">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:rgba(255,255,255,0.4);flex-shrink:0"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            Demandes envoyées
+            {{ __('app.sent_requests') }}
         </div>
         <div class="chat-list">
             @foreach($sentRequests as $chat)
@@ -312,7 +315,7 @@
                 <div class="request-item sent-item">
                     <div class="chat-avatar">
                         @if($recipient->avatar_url)
-                            <img src="{{ asset('storage/' . $recipient->avatar_url) }}" alt="Avatar">
+                            <img src="{{ route('media.public', ['path' => $recipient->avatar_url]) }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         @else
                             <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                         @endif
@@ -323,7 +326,7 @@
                             <div class="chat-preview">{{ $firstMsg->contenu }}</div>
                         @endif
                     </div>
-                    <span class="sent-badge">En attente...</span>
+                    <span class="sent-badge">{{ __('app.pending_dots') }}</span>
                 </div>
             @endforeach
         </div>
@@ -334,8 +337,8 @@
     @if($chats->isEmpty() && $pendingRequests->isEmpty() && $sentRequests->isEmpty())
         <div class="empty-chats">
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-            <h2>Aucune conversation</h2>
-            <p>Swipe à droite sur quelqu'un qui t'intéresse pour lui envoyer un message!</p>
+            <h2>{{ __('app.no_conversations') }}</h2>
+            <p>{{ __('app.no_conversations_hint') }}</p>
         </div>
     @endif
 

@@ -30,6 +30,9 @@
     .event-sidebar { display: flex; flex-direction: column; gap: 1rem; }
     .sidebar-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.18); border-radius: 16px; padding: 1.25rem; }
     .sidebar-title { color: rgba(255,255,255,0.7); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
+    .sidebar-card-danger { background: linear-gradient(180deg, rgba(120,18,24,0.72), rgba(70,10,16,0.9)); border: 1px solid rgba(255,132,132,0.38); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 32px rgba(30,4,8,0.28); }
+    .sidebar-card-danger .sidebar-title { color: #ffd6d6; }
+    .danger-copy { color: rgba(255,226,226,0.82); font-size: 0.78rem; line-height: 1.5; margin: -0.15rem 0 0.85rem; }
 
     /* Action buttons */
     .btn-join { width: 100%; border: none; border-radius: 999px; padding: 0.85rem; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
@@ -53,7 +56,26 @@
     .btn-respond { border: none; border-radius: 999px; padding: 0.25rem 0.65rem; font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 700; cursor: pointer; }
     .btn-accept { background: rgba(46,204,113,0.2); color: #2ecc71; }
     .btn-refuse { background: rgba(231,76,60,0.2); color: #e74c3c; }
-    .btn-annuler-event { width: 100%; border: 1px solid rgba(231,76,60,0.4); background: transparent; color: rgba(231,76,60,0.8); border-radius: 999px; padding: 0.6rem; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .btn-annuler-event { width: 100%; border: 1px solid rgba(255,196,196,0.22); background: rgba(255,255,255,0.08); color: #ffe1e1; border-radius: 999px; padding: 0.72rem; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    .btn-annuler-event:hover { background: rgba(255,255,255,0.12); }
+    .manage-form { display: grid; gap: 0.65rem; }
+    .manage-form input, .manage-form textarea, .manage-form select { width: 100%; padding: 0.7rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.12); color: #fff; font-family: 'Poppins', sans-serif; outline: none; font-size: 0.85rem; }
+    .manage-form textarea { resize: vertical; min-height: 84px; }
+    .manage-form select option { color: #222; }
+    .manage-form button { border: none; border-radius: 999px; padding: 0.75rem 1rem; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; }
+    .btn-save-event { background: #fff; color: #c0392b; }
+    .btn-delete-event { width: 100%; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, #ff7b72, #e74c3c); color: #fff; box-shadow: 0 10px 22px rgba(231,76,60,0.28); }
+    .btn-delete-event:hover { background: linear-gradient(180deg, #ff8a81, #ef5f4f); box-shadow: 0 14px 28px rgba(231,76,60,0.34); transform: translateY(-1px); }
+    .access-options { display: grid; gap: 0.55rem; }
+    .access-option { position: relative; }
+    .access-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .access-card { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.8rem 0.9rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.72); cursor: pointer; transition: all 0.2s ease; }
+    .access-card strong { color: #fff; font-size: 0.82rem; }
+    .access-card span { font-size: 0.7rem; line-height: 1.35; }
+    .access-option input:checked + .access-card { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .access-option.public input:checked + .access-card { border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.16); }
+    .access-option.request input:checked + .access-card { border-color: rgba(241,196,15,0.5); background: rgba(241,196,15,0.16); }
+    .access-option.private input:checked + .access-card { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.11); }
     .btn-back { color: rgba(255,255,255,0.7); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; margin-bottom: 1rem; }
     .btn-back svg { width: 18px; height: 18px; fill: currentColor; }
     .organizer-row { display: flex; align-items: center; gap: 0.75rem; }
@@ -82,7 +104,7 @@
                 @endphp
                 <span class="event-pill {{ $accessClass }}">{{ $accessLabel }}</span>
                 <span class="event-pill pill-{{ $event->statut }}">
-                    {{ ['actif' => 'Actif', 'annule' => 'Annulé', 'complet' => 'Complet'][$event->statut] }}
+                    {{ ['actif' => __('app.event_status_active'), 'annule' => __('app.event_status_cancelled'), 'complet' => __('app.event_full')][$event->statut] }}
                 </span>
             </div>
 
@@ -145,7 +167,7 @@
 
         @if($event->description)
             <div class="card event-description">
-                <h3>Description</h3>
+                <h3>{{ __('app.event_description') }}</h3>
                 <p>{{ $event->description }}</p>
             </div>
         @endif
@@ -165,7 +187,7 @@
                         </div>
                         <span class="participant-name">{{ $participant->prenom }} {{ $participant->nom }}</span>
                         @if($participant->id === $event->creator_id)
-                            <span style="color:rgba(255,255,255,0.5);font-size:0.7rem;">Organisateur</span>
+                            <span style="color:rgba(255,255,255,0.5);font-size:0.7rem;">{{ __('app.event_organizer_badge') }}</span>
                         @endif
                     </div>
                 @endforeach
@@ -175,7 +197,7 @@
         {{-- Pending requests (creator only) --}}
         @if($isCreator && $event->pendingParticipants->isNotEmpty())
             <div class="card event-description">
-                <h3>Demandes en attente ({{ $event->pendingParticipants->count() }})</h3>
+                <h3>{{ __('app.event_pending_requests') }} ({{ $event->pendingParticipants->count() }})</h3>
                 @foreach($event->pendingParticipants as $participant)
                     <div class="participant-row">
                         <div class="participant-avatar">
@@ -189,11 +211,11 @@
                         <div style="display:flex;gap:0.35rem;">
                             <form method="POST" action="{{ route('events.respond', [$event, $participant->id]) }}">
                                 @csrf <input type="hidden" name="action" value="accept">
-                                <button type="submit" class="btn-respond btn-accept">Accepter</button>
+                                <button type="submit" class="btn-respond btn-accept">{{ __('app.accept') }}</button>
                             </form>
                             <form method="POST" action="{{ route('events.respond', [$event, $participant->id]) }}">
                                 @csrf <input type="hidden" name="action" value="refuse">
-                                <button type="submit" class="btn-respond btn-refuse">Refuser</button>
+                                <button type="submit" class="btn-respond btn-refuse">{{ __('app.decline') }}</button>
                             </form>
                         </div>
                     </div>
@@ -217,7 +239,7 @@
                 </div>
                 <div>
                     <div style="color:#fff;font-weight:600;font-size:0.88rem;">{{ $event->creator->prenom }} {{ $event->creator->nom }}</div>
-                    @if($event->group) <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;">via {{ $event->group->nom }}</div> @endif
+                    @if($event->group) <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;">{{ __('app.via') }} {{ $event->group->nom }}</div> @endif
                 </div>
             </div>
         </div>
@@ -226,20 +248,56 @@
         @if($event->statut === 'actif')
             <div class="sidebar-card">
                 @if($isCreator)
-                    <div class="sidebar-title">Gestion</div>
+                    <div class="sidebar-title">{{ __('app.event_management') }}</div>
                     <div class="creator-actions">
                         <div class="confirmed-badge">
-                            ✓ Vous organisez cet événement
+                            ✓ {{ __('app.event_you_organize') }}
                         </div>
-                        <form method="POST" action="{{ route('events.cancel', $event) }}"
-                              onsubmit="return confirm('Annuler cet événement ?')">
+                        <form method="POST" action="{{ route('events.update', $event) }}" class="manage-form">
                             @csrf
-                            <button type="submit" class="btn-annuler-event">Annuler l'événement</button>
+                            @method('PUT')
+                            <input type="text" name="titre" value="{{ old('titre', $event->titre) }}" required placeholder="{{ __('app.event_title') }}">
+                            <textarea name="description" placeholder="{{ __('app.event_description') }}">{{ old('description', $event->description) }}</textarea>
+                            <input type="date" name="date_evenement" value="{{ old('date_evenement', $event->date_evenement->format('Y-m-d')) }}" required>
+                            <input type="time" name="heure_debut" value="{{ old('heure_debut', \Carbon\Carbon::parse($event->heure_debut)->format('H:i')) }}" required>
+                            <input type="text" name="lieu" value="{{ old('lieu', $event->lieu) }}" placeholder="{{ __('app.event_location') }}">
+                            <input type="number" name="max_participants" min="2" value="{{ old('max_participants', $event->max_participants) }}" placeholder="{{ __('app.event_max') }}">
+                            <input type="number" name="prix" min="0" step="0.01" value="{{ old('prix', $event->prix) }}" placeholder="{{ __('app.event_price') }}">
+                            <div class="access-options">
+                                <label class="access-option public">
+                                    <input type="radio" name="type_acces" value="public" {{ old('type_acces', $event->type_acces) === 'public' ? 'checked' : '' }} required>
+                                    <span class="access-card">
+                                        <strong>{{ __('app.event_public') }}</strong>
+                                        <span>{{ __('app.event_public_desc') }}</span>
+                                    </span>
+                                </label>
+                                <label class="access-option request">
+                                    <input type="radio" name="type_acces" value="sur_demande" {{ old('type_acces', $event->type_acces) === 'sur_demande' ? 'checked' : '' }}>
+                                    <span class="access-card">
+                                        <strong>{{ __('app.event_on_request') }}</strong>
+                                        <span>{{ __('app.event_on_request_desc') }}</span>
+                                    </span>
+                                </label>
+                                <label class="access-option private">
+                                    <input type="radio" name="type_acces" value="prive" {{ old('type_acces', $event->type_acces) === 'prive' ? 'checked' : '' }}>
+                                    <span class="access-card">
+                                        <strong>{{ __('app.event_private') }}</strong>
+                                        <span>{{ __('app.event_private_desc') }}</span>
+                                    </span>
+                                </label>
+                            </div>
+                            <select name="group_id">
+                                <option value="">{{ __('app.event_personal') }}</option>
+                                @foreach($myGroups as $group)
+                                    <option value="{{ $group->id }}" {{ (string) old('group_id', $event->group_id) === (string) $group->id ? 'selected' : '' }}>{{ $group->nom }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="btn-save-event">{{ __('app.save') }}</button>
                         </form>
                     </div>
                 @elseif($myStatus === 'confirme')
-                    <div class="sidebar-title">Ma participation</div>
-                    <div class="confirmed-badge" style="margin-bottom:0.75rem;">✓ Vous participez!</div>
+                    <div class="sidebar-title">{{ __('app.event_my_participation') }}</div>
+                    <div class="confirmed-badge" style="margin-bottom:0.75rem;">✓ {{ __('app.event_you_participate') }}</div>
                     <form method="POST" action="{{ route('events.cancel-join', $event) }}">
                         @csrf
                         <button type="submit" class="btn-cancel">{{ __('app.event_cancel') }}</button>
@@ -248,12 +306,12 @@
                     <div class="pending-badge">⏳ {{ __('app.event_pending') }}</div>
                     <form method="POST" action="{{ route('events.cancel-join', $event) }}" style="margin-top:0.75rem;">
                         @csrf
-                        <button type="submit" class="btn-cancel">Annuler ma demande</button>
+                        <button type="submit" class="btn-cancel">{{ __('app.event_cancel_request') }}</button>
                     </form>
                 @elseif($event->type_acces !== 'prive')
-                    <div class="sidebar-title">Rejoindre</div>
+                    <div class="sidebar-title">{{ __('app.event_join_section') }}</div>
                     @if($event->isFull())
-                        <div class="full-badge">Cet événement est complet.</div>
+                        <div class="full-badge">{{ __('app.event_is_full_msg') }}</div>
                     @else
                         <form method="POST" action="{{ route('events.join', $event) }}">
                             @csrf
@@ -265,19 +323,38 @@
                         </form>
                         @if($event->prix > 0)
                             <p style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-top:0.5rem;text-align:center;">
-                                Frais d'inscription: {{ number_format($event->prix, 2) }} $
+                                {{ __('app.event_registration_fee') }} {{ number_format($event->prix, 2) }} $
                             </p>
                         @endif
                     @endif
                 @endif
             </div>
+            @if($isCreator)
+                <div class="sidebar-card sidebar-card-danger">
+                    <div class="sidebar-title">{{ __('app.danger_zone') }}</div>
+                    <p class="danger-copy">{{ __('app.event_danger_warning') }}</p>
+                    <div class="creator-actions">
+                        <form method="POST" action="{{ route('events.cancel', $event) }}"
+                              onsubmit="return confirm('{{ __('app.event_cancel_confirm') }}')">
+                            @csrf
+                            <button type="submit" class="btn-annuler-event">{{ __('app.event_cancel_event') }}</button>
+                        </form>
+                        <form method="POST" action="{{ route('events.destroy', $event) }}"
+                              onsubmit="return confirm('Supprimer cet evenement ?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-delete-event">{{ __('app.delete') }}</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
         @elseif($event->statut === 'annule')
             <div class="sidebar-card">
-                <div style="text-align:center;color:rgba(231,76,60,0.8);font-weight:600;">Cet événement a été annulé.</div>
+                <div style="text-align:center;color:rgba(231,76,60,0.8);font-weight:600;">{{ __('app.event_cancelled_msg') }}</div>
             </div>
         @elseif($event->statut === 'complet')
             <div class="sidebar-card">
-                <div class="full-badge" style="text-align:center;">Cet événement est complet.</div>
+                <div class="full-badge" style="text-align:center;">{{ __('app.event_is_full_msg') }}</div>
             </div>
         @endif
     </aside>

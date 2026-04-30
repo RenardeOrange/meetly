@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 
@@ -27,7 +24,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => ['required', 'email', function ($attribute, $value, $fail) {
-                if (!$this->isAllowedEmailDomain($value)) {
+                if (! $this->isAllowedEmailDomain($value)) {
                     $fail('L\'adresse courriel doit se terminer par @edu.cegeptr.qc.ca ou @cegeptr.qc.ca.');
                 }
             }],
@@ -46,11 +43,12 @@ class AuthController extends Controller
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Votre compte a été suspendu. Contactez l\'administration.',
+                    'email' => 'Votre compte a ete suspendu. Contactez l\'administration.',
                 ])->withInput($request->only('email'));
             }
 
             $request->session()->regenerate();
+
             return redirect()->intended('/home');
         }
 
@@ -70,7 +68,7 @@ class AuthController extends Controller
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'email' => ['required', 'email', 'unique:users,email', function ($attribute, $value, $fail) {
-                if (!$this->isAllowedEmailDomain($value)) {
+                if (! $this->isAllowedEmailDomain($value)) {
                     $fail('L\'adresse courriel doit se terminer par @edu.cegeptr.qc.ca ou @cegeptr.qc.ca.');
                 }
             }],
@@ -88,7 +86,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/home');
+        return redirect()->route('interets.index');
     }
 
     public function logout(Request $request)
@@ -109,55 +107,42 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => ['required', 'email', function ($attribute, $value, $fail) {
-                if (!$this->isAllowedEmailDomain($value)) {
+                if (! $this->isAllowedEmailDomain($value)) {
                     $fail('L\'adresse courriel doit se terminer par @edu.cegeptr.qc.ca ou @cegeptr.qc.ca.');
                 }
             }],
+            'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()],
         ]);
 
-        $status = Password::sendResetLink($request->only('email'));
+        $user = User::where('email', $request->email)->first();
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', 'Un lien de réinitialisation a été envoyé à votre adresse courriel.');
+        if (! $user) {
+            return back()->withErrors([
+                'email' => 'Aucun compte n\'est associe a cette adresse courriel.',
+            ])->withInput($request->only('email'));
         }
 
-        return back()->withErrors(['email' => 'Impossible d\'envoyer le lien de réinitialisation.']);
+        $user->password = $request->password;
+        $user->setRememberToken(Str::random(60));
+        $user->save();
+
+        return redirect()->route('login')->with('status', 'Mot de passe mis a jour avec succes.');
     }
 
     public function showResetPassword(string $token)
     {
-        return view('auth.reset-password', ['token' => $token]);
+        return redirect()->route('password.request');
     }
 
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
-            'password' => ['required', 'confirmed', PasswordRule::min(8)],
-        ]);
-
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user, string $password) {
-                $user->forceFill(['password' => Hash::make($password)])
-                     ->setRememberToken(Str::random(60));
-                $user->save();
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status === Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', 'Mot de passe réinitialisé avec succès.');
-        }
-
-        return back()->withErrors(['email' => 'Le lien est invalide ou a expiré.']);
+        return $this->sendResetLink($request);
     }
 
     private function isAllowedEmailDomain(string $email): bool
     {
         $domain = substr(strrchr($email, '@'), 1);
 
-        return in_array(strtolower($domain), self::ALLOWED_EMAIL_DOMAINS);
+        return in_array(strtolower($domain), self::ALLOWED_EMAIL_DOMAINS, true);
     }
 }

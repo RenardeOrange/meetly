@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de bord')
+@section('title', __('app.dashboard_title'))
 
 @section('styles')
 <style>
@@ -89,12 +89,12 @@
     <div class="card" style="padding:1.2rem 1.4rem;">
         <div class="section-head" style="margin:0;">
             <div>
-                <h2 style="font-size:1.2rem;margin-bottom:.2rem;">&#128202; Mon tableau de bord</h2>
-                <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:0;">Tes statistiques de swipe et ton historique.</p>
+                <h2 style="font-size:1.2rem;margin-bottom:.2rem;">&#128202; {{ __('app.dashboard_title') }}</h2>
+                <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:0;">{{ __('app.dashboard_subtitle') }}</p>
             </div>
             <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-                <a href="{{ route('home') }}" class="back-link">D&eacute;couvrir</a>
-                <a href="{{ route('profile.edit') }}" class="back-link">&#8592; Profil</a>
+                <a href="{{ route('home') }}" class="back-link">{{ __('app.nav_discover') }}</a>
+                <a href="{{ route('profile.edit') }}" class="back-link">&#8592; {{ __('app.back_to_profile') }}</a>
             </div>
         </div>
     </div>
@@ -105,58 +105,58 @@
 
     {{-- ── Stats ── --}}
     <div class="card" style="padding:1.4rem;">
-        <div class="section-head"><h2>Statistiques</h2></div>
+        <div class="section-head"><h2>{{ __('app.stats') }}</h2></div>
         <div class="stats-grid">
             <div class="stat-card green">
                 <div class="stat-icon">&#128077;</div>
                 <div class="stat-value">{{ $totalLikes }}</div>
-                <div class="stat-label">Likes envoy&eacute;s</div>
+                <div class="stat-label">{{ __('app.likes_sent') }}</div>
             </div>
             <div class="stat-card red">
                 <div class="stat-icon">&#10060;</div>
                 <div class="stat-value">{{ $totalPasses }}</div>
-                <div class="stat-label">Passes</div>
+                <div class="stat-label">{{ __('app.tab_passes') }}</div>
             </div>
             <div class="stat-card blue">
                 <div class="stat-icon">&#128140;</div>
                 <div class="stat-value">{{ $totalIncoming }}</div>
-                <div class="stat-label">Likes re&ccedil;us</div>
+                <div class="stat-label">{{ __('app.likes_received') }}</div>
             </div>
             <div class="stat-card gold">
                 <div class="stat-icon">&#127881;</div>
                 <div class="stat-value">{{ $totalMatches }}</div>
-                <div class="stat-label">Matchs mutuels</div>
+                <div class="stat-label">{{ __('app.mutual_matches') }}</div>
             </div>
             <div class="stat-card purple">
                 <div class="stat-icon">&#127919;</div>
                 <div class="stat-value">{{ $acceptanceRate }}%</div>
-                <div class="stat-label">Taux d'acceptation</div>
+                <div class="stat-label">{{ __('app.acceptance_rate') }}</div>
             </div>
             <div class="stat-card teal">
                 <div class="stat-icon">&#128257;</div>
                 <div class="stat-value">{{ $likeRatio }}%</div>
-                <div class="stat-label">Ratio like/swipe</div>
+                <div class="stat-label">{{ __('app.like_swipe_ratio') }}</div>
             </div>
         </div>
     </div>
 
     {{-- ── Tabbed history ── --}}
     <div class="card" style="padding:1.4rem;">
-        <div class="section-head"><h2>Historique</h2></div>
+        <div class="section-head"><h2>{{ __('app.history') }}</h2></div>
 
         <div class="tab-bar">
-            <button class="tab-btn active" data-tab="all">Tous ({{ $history->count() }})</button>
+            <button class="tab-btn active" data-tab="all">{{ __('app.tab_all') }} ({{ $history->count() }})</button>
             <button class="tab-btn" data-tab="likes">Likes ({{ $myLikes->count() }})</button>
-            <button class="tab-btn" data-tab="passes">Passes ({{ $myPasses->count() }})</button>
-            <button class="tab-btn" data-tab="incoming">Re&ccedil;us ({{ $incomingLikes->count() }})</button>
-            <button class="tab-btn" data-tab="matches">Matchs ({{ $mutualMatches->count() }})</button>
-            <button class="tab-btn" data-tab="blocked" id="tab-button-blocked">Bloqu&eacute;s ({{ $blockedUsers->count() }})</button>
+            <button class="tab-btn" data-tab="passes">{{ __('app.tab_passes') }} ({{ $myPasses->count() }})</button>
+            <button class="tab-btn" data-tab="incoming">{{ __('app.tab_received') }} ({{ $incomingLikes->count() }})</button>
+            <button class="tab-btn" data-tab="matches">{{ __('app.tab_matches') }} ({{ $mutualMatches->count() }})</button>
+            <button class="tab-btn" data-tab="blocked" id="tab-button-blocked">{{ __('app.tab_blocked') }} ({{ $blockedUsers->count() }})</button>
         </div>
 
         {{-- All swipes tab --}}
         <div class="tab-pane active" id="tab-all">
             @if ($history->isEmpty())
-                <div class="empty-state">Aucun swipe pour l'instant.</div>
+                <div class="empty-state">{{ __('app.no_swipes') }}</div>
             @else
                 <div class="history-list">
                     @foreach ($history as $match)
@@ -179,17 +179,17 @@
                                 <div class="history-meta">{{ $match->created_at->diffForHumans() }}</div>
                             </div>
                             @if ($isMatch)
-                                <span class="history-badge badge-match">&#127881; Match</span>
+                                <span class="history-badge badge-match">&#127881; {{ __('app.match_excl') }}</span>
                             @elseif ($isPending)
-                                <span class="history-badge badge-pending">&#9203; En attente</span>
+                                <span class="history-badge badge-pending">&#9203; {{ __('app.pending') }}</span>
                             @else
-                                <span class="history-badge badge-pass">Pass&eacute;</span>
+                                <span class="history-badge badge-pass">{{ __('app.passed') }}</span>
                             @endif
                             @if ($isPass || $isPending)
-                                <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('Annuler ce swipe ?')">
+                                <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('{{ __('app.cancel_swipe_confirm') }}')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-undo">Annuler</button>
+                                    <button type="submit" class="btn-undo">{{ __('app.cancel') }}</button>
                                 </form>
                             @endif
                         </div>
@@ -201,7 +201,7 @@
         {{-- My likes tab --}}
         <div class="tab-pane" id="tab-likes">
             @if ($myLikes->isEmpty())
-                <div class="empty-state">Tu n'as encore liké personne.</div>
+                <div class="empty-state">{{ __('app.no_likes_sent') }}</div>
             @else
                 <div class="history-list">
                     @foreach ($myLikes as $match)
@@ -219,13 +219,13 @@
                                 <div class="history-meta">{{ $match->created_at->diffForHumans() }}</div>
                             </div>
                             @if ($match->statut === 'accepte')
-                                <span class="history-badge badge-match">&#127881; Match!</span>
+                                <span class="history-badge badge-match">&#127881; {{ __('app.match_excl') }}</span>
                             @else
-                                <span class="history-badge badge-pending">&#9203; En attente</span>
-                                <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('Annuler cette demande ?')">
+                                <span class="history-badge badge-pending">&#9203; {{ __('app.pending') }}</span>
+                                <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('{{ __('app.cancel_req_confirm') }}')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-undo">Annuler</button>
+                                    <button type="submit" class="btn-undo">{{ __('app.cancel') }}</button>
                                 </form>
                             @endif
                         </div>
@@ -237,7 +237,7 @@
         {{-- Passes tab --}}
         <div class="tab-pane" id="tab-passes">
             @if ($myPasses->isEmpty())
-                <div class="empty-state">Aucun pass&eacute; pour l'instant.</div>
+                <div class="empty-state">{{ __('app.no_passes') }}</div>
             @else
                 <div class="history-list">
                     @foreach ($myPasses as $match)
@@ -252,13 +252,13 @@
                             </div>
                             <div class="history-info">
                                 <div class="history-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
-                                <div class="history-meta">Passé {{ $match->created_at->diffForHumans() }}</div>
+                                <div class="history-meta">{{ __('app.passed') }} {{ $match->created_at->diffForHumans() }}</div>
                             </div>
-                            <span class="history-badge badge-pass">Pass&eacute;</span>
-                            <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('Remettre ce profil dans la découverte ?')">
+                            <span class="history-badge badge-pass">{{ __('app.passed') }}</span>
+                            <form method="POST" action="{{ route('dashboard.undo', $match) }}" class="undo-form" onsubmit="return confirm('{{ __('app.rediscover_confirm') }}')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-undo">&#8634; R&eacute;apparaître</button>
+                                <button type="submit" class="btn-undo">&#8634; {{ __('app.rediscover') }}</button>
                             </form>
                         </div>
                     @endforeach
@@ -269,7 +269,7 @@
         {{-- Incoming likes tab --}}
         <div class="tab-pane" id="tab-incoming">
             @if ($incomingLikes->isEmpty())
-                <div class="empty-state">Personne ne t'a encore liké.</div>
+                <div class="empty-state">{{ __('app.no_likes_received') }}</div>
             @else
                 <div class="history-list">
                     @foreach ($incomingLikes as $match)
@@ -285,11 +285,11 @@
                             <div class="history-info">
                                 <div class="history-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
                                 <div class="history-meta">
-                                    {{ $match->statut === 'accepte' ? 'Match! ' : 'T\'a liké · ' }}{{ $match->created_at->diffForHumans() }}
+                                    {{ $match->statut === 'accepte' ? __('app.match_excl') . ' ' : __('app.liked_you') . ' · ' }}{{ $match->created_at->diffForHumans() }}
                                 </div>
                             </div>
                             @if ($match->statut === 'accepte')
-                                <span class="history-badge badge-match">&#127881; Match</span>
+                                <span class="history-badge badge-match">&#127881; {{ __('app.match_excl') }}</span>
                             @else
                                 <span class="history-badge badge-like">&#128077; Liké</span>
                             @endif
@@ -302,7 +302,7 @@
         {{-- Mutual matches tab --}}
         <div class="tab-pane" id="tab-matches">
             @if ($mutualMatches->isEmpty())
-                <div class="empty-state">Pas encore de match mutuel. Continue de swiper!</div>
+                <div class="empty-state">{{ __('app.no_mutual_matches') }}</div>
             @else
                 <div class="match-grid">
                     @foreach ($mutualMatches as $match)
@@ -319,9 +319,9 @@
                             </div>
                             <div>
                                 <div class="match-name">{{ $other->prenom }} {{ $other->nom }}</div>
-                                <div class="match-date">Match {{ $match->updated_at->diffForHumans() }}</div>
+                                <div class="match-date">{{ __('app.match_excl') }} {{ $match->updated_at->diffForHumans() }}</div>
                                 @if ($match->chat)
-                                    <a href="{{ route('chats.show', $match->chat) }}" class="match-link-btn">Voir la conversation &#8594;</a>
+                                    <a href="{{ route('chats.show', $match->chat) }}" class="match-link-btn">{{ __('app.view_conversation') }} &#8594;</a>
                                 @endif
                             </div>
                         </div>
@@ -332,7 +332,7 @@
 
         <div class="tab-pane" id="tab-blocked">
             @if ($blockedUsers->isEmpty())
-                <div class="empty-state">Tu n'as bloqu&eacute; personne pour l'instant.</div>
+                <div class="empty-state">{{ __('app.no_blocked') }}</div>
             @else
                 <div class="blocked-list">
                     @foreach ($blockedUsers as $block)
@@ -347,14 +347,14 @@
                             </div>
                             <div class="history-info">
                                 <div class="history-name">{{ $profile?->prenom }} {{ $profile?->nom }}</div>
-                                <div class="blocked-meta">Bloqu&eacute; {{ $block->created_at->diffForHumans() }}</div>
+                                <div class="blocked-meta">{{ __('app.blocked_ago') }} {{ $block->created_at->diffForHumans() }}</div>
                             </div>
                             <div class="blocked-actions">
                                 @if ($profile)
-                                    <form method="POST" action="{{ route('blocks.destroy', $profile) }}" onsubmit="return confirm('D&eacute;bloquer cet utilisateur ?');">
+                                    <form method="POST" action="{{ route('blocks.destroy', $profile) }}" onsubmit="return confirm('{{ __('app.unblock_confirm') }}');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-unblock">D&eacute;bloquer</button>
+                                        <button type="submit" class="btn-unblock">{{ __('app.unblock') }}</button>
                                     </form>
                                 @endif
                             </div>

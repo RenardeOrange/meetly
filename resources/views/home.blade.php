@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Decouvrir')
+@section('title', __('app.nav_discover'))
 
 @section('styles')
 <style>
@@ -99,18 +99,18 @@
     <aside class="card filters-card">
         <div class="filter-section-title">
             <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zm-7-10v2h18V8H3zm3 7h12v-2H6v2z"/></svg>
-            Filtres
+            {{ __('app.filters') }}
         </div>
 
         <form method="GET" action="{{ route('home') }}" class="filter-form">
             <div>
-                <label for="search">Recherche</label>
-                <input type="text" id="search" name="search" value="{{ $search }}" placeholder="Nom, bio ou programme">
+                <label for="search">{{ __('app.search_label') }}</label>
+                <input type="text" id="search" name="search" value="{{ $search }}" placeholder="{{ __('app.search_placeholder') }}">
             </div>
 
             <div class="filter-group">
                 <button type="button" class="filter-group-toggle {{ count($selectedInterets) ? 'open' : '' }}" data-target="interestBody">
-                    <span>Int&eacute;r&ecirc;ts{{ count($selectedInterets) ? ' (' . count($selectedInterets) . ')' : '' }}</span>
+                    <span>{{ __('app.nav_interests') }}{{ count($selectedInterets) ? ' (' . count($selectedInterets) . ')' : '' }}</span>
                     <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                 </button>
                 <div class="filter-group-body {{ count($selectedInterets) ? 'open' : '' }}" id="interestBody">
@@ -133,17 +133,17 @@
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn-filter">Filtrer</button>
-                <a href="{{ route('home') }}" class="btn-reset">Effacer</a>
+                <button type="submit" class="btn-filter">{{ __('app.filter_btn') }}</button>
+                <a href="{{ route('home') }}" class="btn-reset">{{ __('app.clear_btn') }}</a>
             </div>
         </form>
     </aside>
 
     <section class="card swipe-section">
-        <h2 class="swipe-title">D&eacute;couvrir des profils</h2>
+        <h2 class="swipe-title">{{ __('app.discover_profiles') }}</h2>
         <div class="swipe-top-actions">
-            <a href="{{ route('dashboard') }}" class="btn-utility">{{ $hasSwipeHistory ? 'Historique et retours' : 'Voir mon tableau de bord' }}</a>
-            <a href="{{ route('dashboard') }}#tab-blocked" class="btn-utility">Utilisateurs bloqu&eacute;s</a>
+            <a href="{{ route('dashboard') }}" class="btn-utility">{{ $hasSwipeHistory ? __('app.history_back') : __('app.view_dashboard') }}</a>
+            <a href="{{ route('dashboard') }}#tab-blocked" class="btn-utility">{{ __('app.blocked_users') }}</a>
         </div>
 
         @if ($usersToSwipe->count() > 0)
@@ -151,29 +151,30 @@
                 @foreach ($usersToSwipe->reverse() as $profile)
                     @php
                         $connexionLabels = [
-                            'amitie' => '&#128075; Amiti&eacute;',
-                            'activites' => '&#127939; Activit&eacute;s',
-                            'etudes' => '&#128218; &Eacute;tudes',
-                            'sorties' => '&#127917; Sorties',
-                            'gaming' => '&#127918; Gaming',
+                            'amitie'   => '&#128075; ' . __('app.connection_friendship'),
+                            'activites'=> '&#127939; ' . __('app.connection_activities'),
+                            'etudes'   => '&#128218; ' . __('app.connection_studies'),
+                            'sorties'  => '&#127917; ' . __('app.connection_outings'),
+                            'gaming'   => '&#127918; ' . __('app.connection_gaming'),
                         ];
                         $profileConnexions = $profile->type_connexion ?? [];
                         $score = $matchScores[$profile->id] ?? 0;
-                        $scoreCls = $score >= 60 ? 'high' : ($score >= 30 ? 'mid' : 'low');
+                        $scoreLabel = rtrim(rtrim(number_format($score, 1, '.', ''), '0'), '.');
+                        $scoreCls = $score >= 4 ? 'high' : ($score >= 2 ? 'mid' : 'low');
                     @endphp
                     <div class="swipe-card" data-user-id="{{ $profile->id }}">
                         <span class="swipe-indicator like-indicator">OUI</span>
                         <span class="swipe-indicator nope-indicator">PASSER</span>
                         <div class="profile-avatar">
                             @if ($profile->avatar_url)
-                                <img src="{{ asset('storage/' . $profile->avatar_url) }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                <img src="{{ route('media.public', ['path' => $profile->avatar_url]) }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             @else
                                 <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                             @endif
                         </div>
                         <div class="profile-name">{{ $profile->prenom }} {{ $profile->nom }}</div>
-                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? 'Etudiant(e)' : 'Personnel' }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
-                        <span class="card-match-score {{ $scoreCls }}">&#10024; {{ $score }}% en commun</span>
+                        <div class="profile-sub">{{ $profile->position === 'etudiant' ? __('app.student') : __('app.staff') }}@if($profile->numero_programme) &nbsp;&bull;&nbsp; {{ $profile->numero_programme }}@endif</div>
+                        <span class="card-match-score {{ $scoreCls }}">&#10024; {{ $scoreLabel }} {{ __('app.match_score') }}</span>
                         @if ($profile->bio)
                             <div class="profile-bio">{{ $profile->bio }}</div>
                         @endif
@@ -188,8 +189,8 @@
                             </div>
                         @endif
                         <div class="profile-actions">
-                            <button type="button" class="profile-action-btn btn-report-profile">Signaler</button>
-                            <button type="button" class="profile-action-btn danger btn-block-profile">Bloquer</button>
+                            <button type="button" class="profile-action-btn btn-report-profile">{{ __('app.report_btn') }}</button>
+                            <button type="button" class="profile-action-btn danger btn-block-profile">{{ __('app.block_btn') }}</button>
                         </div>
                     </div>
                 @endforeach
@@ -202,8 +203,8 @@
         @else
             <div class="empty-state">
                 <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                <h2>Aucun profil disponible</h2>
-                <p>Ajuste les filtres ou reviens un peu plus tard.</p>
+                <h2>{{ __('app.no_profiles_title') }}</h2>
+                <p>{{ __('app.no_profiles_subtitle') }}</p>
             </div>
         @endif
     </section>
@@ -211,39 +212,39 @@
 
 <div class="msg-modal-overlay hidden" id="msgModal">
     <div class="msg-modal">
-        <div class="msg-modal-title">Envoie un message &agrave; <span id="msgModalName"></span></div>
-        <div class="msg-modal-sub">Ils verront ton message si tu les int&eacute;resses.</div>
-        <textarea id="msgModalText" rows="3" maxlength="500" placeholder="Dis quelque chose de sympa..."></textarea>
+        <div class="msg-modal-title">{{ __('app.send_message_to') }} <span id="msgModalName"></span></div>
+        <div class="msg-modal-sub">{{ __('app.message_modal_sub') }}</div>
+        <textarea id="msgModalText" rows="3" maxlength="500" placeholder="{{ __('app.message_placeholder') }}"></textarea>
         <div class="msg-modal-chars"><span id="msgModalCount">0</span>/500</div>
-        <div class="msg-modal-error" id="msgModalError">Ecris un petit message avant d'envoyer.</div>
+        <div class="msg-modal-error" id="msgModalError">{{ __('app.message_required') }}</div>
         <div class="msg-modal-actions">
-            <button class="msg-modal-cancel" id="msgModalCancel" type="button">Annuler</button>
-            <button class="msg-modal-send" id="msgModalSend" type="button">Envoyer</button>
+            <button class="msg-modal-cancel" id="msgModalCancel" type="button">{{ __('app.cancel') }}</button>
+            <button class="msg-modal-send" id="msgModalSend" type="button">{{ __('app.send') }}</button>
         </div>
     </div>
 </div>
 
 <div class="msg-modal-overlay hidden" id="reportModal">
     <div class="msg-modal report-modal">
-        <div class="msg-modal-title">Signaler <span id="reportModalName"></span></div>
-        <div class="msg-modal-sub">Explique ce qui pose probleme pour que l'administration puisse examiner le compte.</div>
-        <textarea id="reportModalText" maxlength="1000" placeholder="Pourquoi signales-tu ce compte ?"></textarea>
+        <div class="msg-modal-title">{{ __('app.report_btn') }} <span id="reportModalName"></span></div>
+        <div class="msg-modal-sub">{{ __('app.report_modal_desc') }}</div>
+        <textarea id="reportModalText" maxlength="1000" placeholder="{{ __('app.report_placeholder') }}"></textarea>
         <div class="msg-modal-chars"><span id="reportModalCount">0</span>/1000</div>
-        <div class="msg-modal-error" id="reportModalError">Ajoute un motif avant d'envoyer le signalement.</div>
+        <div class="msg-modal-error" id="reportModalError">{{ __('app.report_required') }}</div>
         <div class="msg-modal-actions">
-            <button class="msg-modal-cancel" id="reportModalCancel" type="button">Annuler</button>
-            <button class="report-modal-send" id="reportModalSend" type="button">Envoyer le signalement</button>
+            <button class="msg-modal-cancel" id="reportModalCancel" type="button">{{ __('app.cancel') }}</button>
+            <button class="report-modal-send" id="reportModalSend" type="button">{{ __('app.send_report') }}</button>
         </div>
     </div>
 </div>
 
 <div class="msg-modal-overlay hidden" id="blockModal">
     <div class="msg-modal report-modal">
-        <div class="msg-modal-title">Bloquer <span id="blockModalName"></span></div>
-        <div class="msg-modal-sub">Cette personne disparaitra de tes swipes, demandes et conversations.</div>
+        <div class="msg-modal-title">{{ __('app.block_btn') }} <span id="blockModalName"></span></div>
+        <div class="msg-modal-sub">{{ __('app.block_modal_desc') }}</div>
         <div class="msg-modal-actions">
-            <button class="msg-modal-cancel" id="blockModalCancel" type="button">Annuler</button>
-            <button class="report-modal-send" id="blockModalConfirm" type="button">Confirmer le blocage</button>
+            <button class="msg-modal-cancel" id="blockModalCancel" type="button">{{ __('app.cancel') }}</button>
+            <button class="report-modal-send" id="blockModalConfirm" type="button">{{ __('app.confirm_block') }}</button>
         </div>
     </div>
 </div>

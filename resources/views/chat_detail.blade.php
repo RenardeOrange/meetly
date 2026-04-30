@@ -67,7 +67,7 @@
         </a>
         <div class="chat-header-avatar">
             @if($otherUser->avatar_url)
-                <img src="{{ asset('storage/' . $otherUser->avatar_url) }}" alt="Avatar">
+                <img src="{{ route('media.public', ['path' => $otherUser->avatar_url]) }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             @else
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
             @endif
@@ -76,13 +76,16 @@
             <div class="chat-header-name">{{ $otherUser->prenom }} {{ $otherUser->nom }}</div>
             <div class="chat-header-sub" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                 @if($chat->request_statut === 'en_attente')
-                    <span>Demande en attente</span>
+                    <span>{{ __('app.request_pending_status') }}</span>
                 @else
-                    <span>{{ $otherUser->position === 'etudiant' ? 'Étudiant(e)' : 'Personnel' }}</span>
+                    <span>{{ $otherUser->position === 'etudiant' ? __('app.student') : __('app.staff') }}</span>
                 @endif
-                @php $score = $matchScore ?? 0; @endphp
-                <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;background:{{ $score >= 60 ? 'rgba(46,204,113,0.25)' : ($score >= 30 ? 'rgba(255,220,80,0.2)' : 'rgba(255,255,255,0.1)') }};color:{{ $score >= 60 ? '#2ecc71' : ($score >= 30 ? '#fdd835' : 'rgba(255,255,255,0.6)') }};">
-                    {{ $score }}% en commun
+                @php
+                    $score = $matchScore ?? 0;
+                    $scoreLabel = rtrim(rtrim(number_format($score, 1, '.', ''), '0'), '.');
+                @endphp
+                <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;background:{{ $score >= 4 ? 'rgba(46,204,113,0.25)' : ($score >= 2 ? 'rgba(255,220,80,0.2)' : 'rgba(255,255,255,0.1)') }};color:{{ $score >= 4 ? '#2ecc71' : ($score >= 2 ? '#fdd835' : 'rgba(255,255,255,0.6)') }};">
+                    {{ $scoreLabel }} {{ __('app.match_score') }}
                 </span>
             </div>
         </div>
@@ -91,15 +94,15 @@
     {{-- Pending banner for recipient --}}
     @if($chat->request_statut === 'en_attente' && $isRecipient)
         <div class="pending-banner">
-            <p>{{ $otherUser->prenom }} t'a envoyé une demande de message. Tu peux accepter ou refuser.</p>
+            <p>{{ __('app.message_request_banner', ['name' => $otherUser->prenom]) }}</p>
             <div class="pending-actions">
                 <form method="POST" action="{{ route('chats.request.respond', $chat) }}">
                     @csrf <input type="hidden" name="action" value="accept">
-                    <button type="submit" class="btn-accept">Accepter</button>
+                    <button type="submit" class="btn-accept">{{ __('app.accept') }}</button>
                 </form>
                 <form method="POST" action="{{ route('chats.request.respond', $chat) }}">
                     @csrf <input type="hidden" name="action" value="decline">
-                    <button type="submit" class="btn-decline">Refuser</button>
+                    <button type="submit" class="btn-decline">{{ __('app.decline') }}</button>
                 </form>
             </div>
         </div>
@@ -113,7 +116,7 @@
                 @if(!$isMine)
                     <div class="msg-avatar">
                         @if($otherUser->avatar_url)
-                            <img src="{{ asset('storage/' . $otherUser->avatar_url) }}" alt="">
+                            <img src="{{ route('media.public', ['path' => $otherUser->avatar_url]) }}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         @else
                             <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                         @endif
@@ -129,14 +132,14 @@
         @if($messages->isEmpty())
             <div class="sender-pending">
                 <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-                Aucun message encore.
+                {{ __('app.no_messages_yet') }}
             </div>
         @endif
 
         @if($chat->request_statut === 'en_attente' && !$isRecipient)
             <div class="sender-pending">
                 <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                En attente de réponse de {{ $otherUser->prenom }}…
+                {{ __('app.pending_response', ['name' => $otherUser->prenom]) }}
             </div>
         @endif
     </div>
@@ -146,7 +149,7 @@
         <div class="chat-input-area">
             <form class="chat-input-form" method="POST" action="{{ route('chats.message', $chat) }}" id="msgForm">
                 @csrf
-                <textarea name="contenu" id="msgInput" rows="1" placeholder="Écris un message…" maxlength="2000"></textarea>
+                <textarea name="contenu" id="msgInput" rows="1" placeholder="{{ __('app.write_message_placeholder') }}" maxlength="2000"></textarea>
                 <button type="submit" class="btn-send">
                     <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
@@ -154,7 +157,7 @@
         </div>
     @elseif($chat->request_statut === 'en_attente' && !$isRecipient)
         <div class="chat-input-area">
-            <div class="input-disabled">Attends que {{ $otherUser->prenom }} accepte avant de continuer.</div>
+            <div class="input-disabled">{{ __('app.wait_for_acceptance', ['name' => $otherUser->prenom]) }}</div>
         </div>
     @endif
 

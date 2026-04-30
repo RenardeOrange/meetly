@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mon profil')
+@section('title', __('app.nav_profile'))
 
 @section('styles')
 <style>
@@ -23,6 +23,10 @@
     .btn-save, .btn-manage { width: 100%; border: none; border-radius: 999px; padding: 0.9rem 1rem; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; font-family: 'Poppins', sans-serif; }
     .btn-save { background: #fff; color: #c0392b; }
     .btn-manage { display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.14); color: #fff; margin-top: 1rem; }
+    .btn-password-toggle { width: 100%; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 0.85rem 1rem; background: rgba(255,255,255,0.08); color: #fff; font-weight: 600; cursor: pointer; text-align: left; font-family: 'Poppins', sans-serif; transition: background 0.2s ease, border-color 0.2s ease; }
+    .btn-password-toggle:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.35); }
+    .password-panel { display: none; margin-top: 0.9rem; }
+    .password-panel.open { display: block; }
     .success-message { background: rgba(46,204,113,0.16); color: #fff; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(46,204,113,0.35); margin-bottom: 1rem; }
     .error-message { background: rgba(231,76,60,0.18); color: #fff; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(231,76,60,0.35); margin-bottom: 1rem; }
     .char-count { text-align: right; color: rgba(255,255,255,0.6); font-size: 0.74rem; margin-top: 0.35rem; }
@@ -84,16 +88,18 @@
     <div class="card profile-panel">
         <div class="profile-header">
             <div class="avatar-large" id="avatarPreview">
-                @if ($user->avatar_url)
-                    <img id="avatarPreviewImg" src="{{ asset('storage/' . $user->avatar_url) }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
-                @else
-                    <img id="avatarPreviewImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-                    <svg id="avatarPreviewSvg" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                @endif
+                <img
+                    id="avatarPreviewImg"
+                    src="{{ $user->avatar_url ? route('media.public', ['path' => $user->avatar_url]) : '' }}"
+                    alt=""
+                    style="width:100%;height:100%;object-fit:cover;{{ $user->avatar_url ? '' : 'display:none;' }}"
+                    onerror="this.style.display='none'; document.getElementById('avatarPreviewSvg').style.display='block';"
+                >
+                <svg id="avatarPreviewSvg" viewBox="0 0 24 24" style="{{ $user->avatar_url ? 'display:none;' : '' }}"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
             </div>
             <div>
-                <h1>Mon profil</h1>
-                <p>Personnalise ton profil et tes centres d'int&eacute;r&ecirc;t pour trouver des gens avec qui faire des activit&eacute;s.</p>
+                <h1>{{ __('app.nav_profile') }}</h1>
+                <p>{{ __('app.profile_desc') }}</p>
             </div>
         </div>
 
@@ -107,73 +113,77 @@
             <div class="success-message">{{ session('success') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('profile.update') }}" class="profile-form" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('profile.update') }}" class="profile-form" id="profileForm" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <div class="form-row">
-                <div><label>Pr&eacute;nom</label><input type="text" name="prenom" value="{{ old('prenom', $user->prenom) }}" required></div>
-                <div><label>Nom</label><input type="text" name="nom" value="{{ old('nom', $user->nom) }}" required></div>
+                <div><label>{{ __('app.first_name') }}</label><input type="text" name="prenom" value="{{ old('prenom', $user->prenom) }}" required></div>
+                <div><label>{{ __('app.last_name') }}</label><input type="text" name="nom" value="{{ old('nom', $user->nom) }}" required></div>
             </div>
-            <div><label>Courriel</label><div class="email-display">{{ $user->email }}</div></div>
-            <div><label>No. de programme ou d&eacute;partement</label><input type="text" name="numero_programme" value="{{ old('numero_programme', $user->numero_programme) }}" placeholder="Ex. Techniques de l'informatique"></div>
+            <div><label>{{ __('app.email') }}</label><div class="email-display">{{ $user->email }}</div></div>
+            <div><label>{{ __('app.program') }}</label><input type="text" name="numero_programme" value="{{ old('numero_programme', $user->numero_programme) }}" placeholder="{{ __('app.program_placeholder') }}"></div>
             <div>
-                <label>Bio courte</label>
-                <textarea name="bio" id="bioField" maxlength="200" placeholder="Dis quelques mots sur toi, tes passions, ce que tu aimes faire...">{{ old('bio', $user->bio) }}</textarea>
+                <label>{{ __('app.short_bio') }}</label>
+                <textarea name="bio" id="bioField" maxlength="200" placeholder="{{ __('app.bio_placeholder') }}">{{ old('bio', $user->bio) }}</textarea>
                 <div class="char-count"><span id="bioCount">{{ strlen(old('bio', $user->bio ?? '')) }}</span>/200</div>
             </div>
-            <div><label>Photo de profil</label><input type="file" name="avatar" id="avatarInput" accept="image/*"></div>
+            <div><label>{{ __('app.profile_photo') }}</label><input type="file" name="avatar" id="avatarInput" accept="image/*"></div>
 
             <div style="border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1rem;">
-                <div class="section-label">S&eacute;curit&eacute; du compte</div>
-                <div class="form-row">
-                    <div>
-                        <label>Mot de passe actuel</label>
-                        <input type="password" name="current_password" autocomplete="current-password" placeholder="Entre ton mot de passe actuel">
+                <div class="section-label">{{ __('app.account_security') }}</div>
+                <button type="button" class="btn-password-toggle" id="togglePasswordReset">
+                    {{ __('app.account_security') }}: changer le mot de passe
+                </button>
+                <div class="password-panel{{ $errors->has('current_password') || $errors->has('password') || $errors->has('password_confirmation') ? ' open' : '' }}" id="passwordResetPanel">
+                    <div class="form-row" style="margin-top: 0.9rem;">
+                        <div>
+                            <label>{{ __('app.current_password') }}</label>
+                            <input type="password" name="current_password" id="currentPasswordField" autocomplete="current-password" placeholder="{{ __('app.current_pass_placeholder') }}" {{ $errors->has('current_password') || $errors->has('password') || $errors->has('password_confirmation') ? '' : 'disabled' }}>
+                        </div>
+                        <div>
+                            <label>{{ __('app.new_password') }}</label>
+                            <input type="password" name="password" id="newPasswordField" autocomplete="new-password" placeholder="{{ __('app.new_pass_placeholder') }}" {{ $errors->has('current_password') || $errors->has('password') || $errors->has('password_confirmation') ? '' : 'disabled' }}>
+                        </div>
                     </div>
                     <div>
-                        <label>Nouveau mot de passe</label>
-                        <input type="password" name="password" autocomplete="new-password" placeholder="Minimum 8 caract&egrave;res">
+                        <label>{{ __('app.confirm_new_password') }}</label>
+                        <input type="password" name="password_confirmation" id="confirmPasswordField" autocomplete="new-password" placeholder="{{ __('app.confirm_pass_placeholder') }}" {{ $errors->has('current_password') || $errors->has('password') || $errors->has('password_confirmation') ? '' : 'disabled' }}>
                     </div>
                 </div>
-                <div>
-                    <label>Confirmer le nouveau mot de passe</label>
-                    <input type="password" name="password_confirmation" autocomplete="new-password" placeholder="R&eacute;p&egrave;te le nouveau mot de passe">
-                </div>
-                <div class="field-note">Laisse ces champs vides si tu ne veux pas changer ton mot de passe.</div>
             </div>
 
             <div>
-                <label>Visibilit&eacute;</label>
+                <label>{{ __('app.visibility') }}</label>
                 <select name="visibilite">
-                    <option value="public"  {{ old('visibilite', $user->visibilite) === 'public'  ? 'selected' : '' }}>Public — visible dans les suggestions</option>
-                    <option value="prive"   {{ old('visibilite', $user->visibilite) === 'prive'   ? 'selected' : '' }}>Priv&eacute; — non visible dans les suggestions</option>
+                    <option value="public"  {{ old('visibilite', $user->visibilite) === 'public'  ? 'selected' : '' }}>{{ __('app.visibility_public') }}</option>
+                    <option value="prive"   {{ old('visibilite', $user->visibilite) === 'prive'   ? 'selected' : '' }}>{{ __('app.visibility_private') }}</option>
                 </select>
             </div>
 
             <div>
-                <div class="section-label">Je cherche &agrave; &hellip; <span style="font-weight:400;text-transform:none;letter-spacing:0;">(plusieurs choix possibles)</span></div>
+                <div class="section-label">{{ __('app.looking_for') }}</div>
                 @php $selected = old('type_connexion', $user->type_connexion ?? []); @endphp
                 <div class="connexion-options">
                     <label class="connexion-option">
                         <input type="checkbox" name="type_connexion[]" value="amitie" {{ in_array('amitie', $selected) ? 'checked' : '' }}>
-                        <span>&#128075; Me faire des amis</span>
+                        <span>&#128075; {{ __('app.connection_friendship') }}</span>
                     </label>
                     <label class="connexion-option">
                         <input type="checkbox" name="type_connexion[]" value="activites" {{ in_array('activites', $selected) ? 'checked' : '' }}>
-                        <span>&#127939; Faire des activit&eacute;s</span>
+                        <span>&#127939; {{ __('app.connection_activities') }}</span>
                     </label>
                     <label class="connexion-option">
                         <input type="checkbox" name="type_connexion[]" value="etudes" {{ in_array('etudes', $selected) ? 'checked' : '' }}>
-                        <span>&#128218; Partenaire d'&eacute;tudes</span>
+                        <span>&#128218; {{ __('app.connection_studies') }}</span>
                     </label>
                     <label class="connexion-option">
                         <input type="checkbox" name="type_connexion[]" value="sorties" {{ in_array('sorties', $selected) ? 'checked' : '' }}>
-                        <span>&#127917; Sorties &amp; &eacute;v&eacute;nements</span>
+                        <span>&#127917; {{ __('app.connection_outings') }}</span>
                     </label>
                     <label class="connexion-option">
                         <input type="checkbox" name="type_connexion[]" value="gaming" {{ in_array('gaming', $selected) ? 'checked' : '' }}>
-                        <span>&#127918; Gaming ensemble</span>
+                        <span>&#127918; {{ __('app.connection_gaming') }}</span>
                     </label>
                 </div>
             </div>
@@ -216,8 +226,8 @@
     <div class="side-stack">
         <div class="card profile-panel">
             <div class="side-title" style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
-                <span>Mes int&eacute;r&ecirc;ts <span id="interetCount" style="font-size:.72rem;font-weight:600;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);padding:.15rem .5rem;border-radius:999px;">{{ $user->interets->count() }}</span></span>
-                <a href="{{ route('dashboard') }}" style="font-size:.72rem;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;padding:.2rem .6rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;white-space:nowrap;">&#128202; Tableau de bord</a>
+                <span>{{ __('app.my_interests') }} <span id="interetCount" style="font-size:.72rem;font-weight:600;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);padding:.15rem .5rem;border-radius:999px;">{{ $user->interets->count() }}</span></span>
+                <a href="{{ route('dashboard') }}" style="font-size:.72rem;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;padding:.2rem .6rem;border:1px solid rgba(255,255,255,.2);border-radius:999px;white-space:nowrap;">&#128202; {{ __('app.dashboard') }}</a>
             </div>
 
             @php $userInteretIds = $user->interets->pluck('id')->all(); @endphp
@@ -226,16 +236,16 @@
                 @forelse ($user->interets->sortBy(fn ($i) => $i->categorie . '|' . $i->nom) as $interet)
                     <span class="interest-chip" data-id="{{ $interet->id }}">
                         {{ $interet->nom }}
-                        <button type="button" class="chip-rm-btn" data-id="{{ $interet->id }}" title="Retirer">✕</button>
+                        <button type="button" class="chip-rm-btn" data-id="{{ $interet->id }}" title="{{ __('app.remove_interest') }}">✕</button>
                     </span>
                 @empty
-                    <p class="empty-copy" id="profileEmptyMsg">Aucun int&eacute;r&ecirc;t s&eacute;lectionn&eacute; pour le moment.</p>
+                    <p class="empty-copy" id="profileEmptyMsg">{{ __('app.no_interests_profile') }}</p>
                 @endforelse
             </div>
 
             <button type="button" class="btn-add-interests" id="togglePicker">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Ajouter des int&eacute;r&ecirc;ts
+                {{ __('app.add_interests') }}
             </button>
 
             <div class="interest-picker" id="interestPicker">
@@ -267,9 +277,64 @@
 
 @section('scripts')
 <script>
+    const profileForm = document.getElementById('profileForm');
+    let isSubmittingProfileForm = false;
+
+    function serializeProfileForm(form) {
+        const values = [];
+
+        new FormData(form).forEach((value, key) => {
+            if (value instanceof File) {
+                values.push([key, value.name, value.size, value.type].join(':'));
+                return;
+            }
+
+            values.push([key, value].join(':'));
+        });
+
+        return values.join('|');
+    }
+
+    let initialProfileSnapshot = profileForm ? serializeProfileForm(profileForm) : '';
+
+    function hasUnsavedProfileChanges() {
+        if (!profileForm || isSubmittingProfileForm) {
+            return false;
+        }
+
+        return serializeProfileForm(profileForm) !== initialProfileSnapshot;
+    }
+
     const bioField = document.getElementById('bioField');
     const bioCount = document.getElementById('bioCount');
     bioField?.addEventListener('input', function () { bioCount.textContent = this.value.length; });
+    const togglePasswordResetBtn = document.getElementById('togglePasswordReset');
+    const passwordResetPanel = document.getElementById('passwordResetPanel');
+    const currentPasswordField = document.getElementById('currentPasswordField');
+    const newPasswordField = document.getElementById('newPasswordField');
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+
+    togglePasswordResetBtn?.addEventListener('click', () => {
+        const willOpen = !passwordResetPanel.classList.contains('open');
+        passwordResetPanel.classList.toggle('open', willOpen);
+
+        [currentPasswordField, newPasswordField, confirmPasswordField].forEach((field) => {
+            if (field) {
+                field.disabled = !willOpen;
+            }
+        });
+
+        if (willOpen) {
+            currentPasswordField?.focus();
+            return;
+        }
+
+        [currentPasswordField, newPasswordField, confirmPasswordField].forEach((field) => {
+            if (field) {
+                field.value = '';
+            }
+        });
+    });
 
     const avatarInput   = document.getElementById('avatarInput');
     const avatarImg     = document.getElementById('avatarPreviewImg');
@@ -287,6 +352,39 @@
     });
 
     // ── Interest picker (AJAX) ──
+    profileForm?.addEventListener('submit', () => {
+        isSubmittingProfileForm = true;
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+        if (!hasUnsavedProfileChanges()) {
+            return;
+        }
+
+        event.preventDefault();
+        event.returnValue = '';
+    });
+
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[href]');
+        if (!link || link.target === '_blank' || link.hasAttribute('download')) {
+            return;
+        }
+
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            return;
+        }
+
+        if (!hasUnsavedProfileChanges()) {
+            return;
+        }
+
+        if (!window.confirm('Vous avez des modifications non enregistrees. Quitter cette page sans enregistrer ?')) {
+            event.preventDefault();
+        }
+    });
+
     const csrfToken    = document.querySelector('meta[name="csrf-token"]').content;
     const toggleRoute  = '{{ route("interets.toggle") }}';
     const chipsEl      = document.getElementById('profileChips');
@@ -391,7 +489,7 @@
         const chip = document.createElement('span');
         chip.className = 'interest-chip';
         chip.dataset.id = id;
-        chip.innerHTML = `${name} <button type="button" class="chip-rm-btn" data-id="${id}" title="Retirer">✕</button>`;
+        chip.innerHTML = `${name} <button type="button" class="chip-rm-btn" data-id="${id}" title="{{ __('app.remove_interest') }}">✕</button>`;
         chipsEl.appendChild(chip);
         updateCount(+1);
     }
@@ -405,7 +503,7 @@
             const p = document.createElement('p');
             p.className = 'empty-copy';
             p.id = 'profileEmptyMsg';
-            p.textContent = "Aucun intérêt sélectionné pour le moment.";
+            p.textContent = "{{ __('app.no_interests_profile') }}";
             chipsEl.appendChild(p);
         }
     }

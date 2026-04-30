@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Groupes')
+@section('title', __('app.groups'))
 
 @section('styles')
 <style>
@@ -34,16 +34,16 @@
 @section('content')
 <div class="groups-page">
     <div class="groups-header">
-        <div class="groups-title">Groupes</div>
+        <div class="groups-title">{{ __('app.groups') }}</div>
         <a href="{{ route('groups.create') }}" class="btn-create">
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Créer un groupe
+            {{ __('app.group_create') }}
         </a>
     </div>
 
     {{-- My groups --}}
     <div>
-        <div class="section-label">Mes groupes</div>
+        <div class="section-label">{{ __('app.my_groups') }}</div>
         @if($myGroups->count())
             <div class="groups-grid">
                 @foreach($myGroups as $group)
@@ -60,8 +60,8 @@
                             <div style="flex:1;min-width:0;">
                                 <div class="group-card-name">{{ $group->nom }}</div>
                                 <div class="group-card-meta">
-                                    <span class="group-meta-pill {{ $group->est_public ? 'pill-public' : 'pill-private' }}">{{ $group->est_public ? 'Public' : 'Privé' }}</span>
-                                    <span class="group-meta-pill pill-members">{{ $group->members->count() }} membre{{ $group->members->count() > 1 ? 's' : '' }}</span>
+                                    <span class="group-meta-pill {{ $group->est_public ? 'pill-public' : 'pill-private' }}">{{ $group->est_public ? __('app.group_public') : __('app.group_private') }}</span>
+                                    <span class="group-meta-pill pill-members">{{ $group->members->count() }} {{ __('app.member') }}{{ $group->members->count() > 1 ? 's' : '' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -78,14 +78,14 @@
                 @endforeach
             </div>
         @else
-            <div class="empty-section">Tu n'es dans aucun groupe pour l'instant.</div>
+            <div class="empty-section">{{ __('app.no_groups') }}</div>
         @endif
     </div>
 
     {{-- Public groups to discover --}}
     @if($publicGroups->count())
     <div>
-        <div class="section-label">Groupes publics à rejoindre</div>
+        <div class="section-label">{{ __('app.public_groups') }}</div>
         <div class="groups-grid">
             @foreach($publicGroups as $group)
                 <div class="group-card" style="cursor:default;">
@@ -100,8 +100,8 @@
                         <div style="flex:1;min-width:0;">
                             <div class="group-card-name">{{ $group->nom }}</div>
                             <div class="group-card-meta">
-                                <span class="group-meta-pill pill-public">Public</span>
-                                <span class="group-meta-pill pill-members">{{ $group->members->count() }} membre{{ $group->members->count() > 1 ? 's' : '' }}</span>
+                                <span class="group-meta-pill pill-public">{{ __('app.group_public') }}</span>
+                                <span class="group-meta-pill pill-members">{{ $group->members->count() }} {{ __('app.member') }}{{ $group->members->count() > 1 ? 's' : '' }}</span>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                     @endforeach
                     <form method="POST" action="{{ route('groups.join', $group) }}">
                         @csrf
-                        <button type="submit" class="btn-join">Rejoindre</button>
+                        <button type="submit" class="btn-join">{{ __('app.join') }}</button>
                     </form>
                 </div>
             @endforeach

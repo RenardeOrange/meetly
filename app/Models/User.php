@@ -103,17 +103,71 @@ class User extends Authenticatable
         return $this->blockedByOthers()->pluck('blocker_id');
     }
 
-    /** Jaccard-based interest match percentage (0-100) */
-    public function matchScore(User $other): int
+    /**
+     * Weighted interest score:
+     * - exact shared interests count fully
+     * - unmatched interests in the same category count partially
+     * - shared dominant categories earn a bonus
+     */
+    public function matchScore(User $other): float
     {
-        $mine  = $this->interets->pluck('id');
-        $theirs = $other->interets->pluck('id');
+        $mine = $this->interets;
+        $theirs = $other->interets;
 
-        if ($mine->isEmpty() && $theirs->isEmpty()) return 0;
+        if ($mine->isEmpty() && $theirs->isEmpty()) {
+            return 0.0;
+        }
 
-        $common = $mine->intersect($theirs)->count();
-        $total  = $mine->merge($theirs)->unique()->count();
+        $exactMatchIds = $mine->pluck('id')->intersect($theirs->pluck('id'));
+        $exactMatches = $exactMatchIds->count();
 
-        return $total > 0 ? (int) round(($common / $total) * 100) : 0;
+        $mineRemainder = $mine->reject(fn ($interet) => $exactMatchIds->contains($interet->id));
+        $theirRemainder = $theirs->reject(fn ($interet) => $exactMatchIds->contains($interet->id));
+
+        $similarMatches = 0.0;
+        $myCategoryCounts = $mineRemainder
+            ->filter(fn ($interet) => filled($interet->categorie))
+            ->countBy('categorie');
+        $theirCategoryCounts = $theirRemainder
+            ->filter(fn ($interet) => filled($interet->categorie))
+            ->countBy('categorie');
+
+        foreach ($myCategoryCounts as $category => $count) {
+            $similarMatches += min($count, $theirCategoryCounts->get($category, 0)) * 0.35;
+        }
+
+        $dominantBonus = $this->sharesDominantInterestCategoryWith($other) ? 1.0 : 0.0;
+
+        return round($exactMatches + $similarMatches + $dominantBonus, 1);
+    }
+
+    protected function sharesDominantInterestCategoryWith(User $other): bool
+    {
+        $myDominantCategories = $this->dominantInterestCategories();
+        $theirDominantCategories = $other->dominantInterestCategories();
+
+        if ($myDominantCategories->isEmpty() || $theirDominantCategories->isEmpty()) {
+            return false;
+        }
+
+        return $myDominantCategories->intersect($theirDominantCategories)->isNotEmpty();
+    }
+
+    protected function dominantInterestCategories(): Collection
+    {
+        $categoryCounts = $this->interets
+            ->filter(fn ($interet) => filled($interet->categorie))
+            ->countBy('categorie');
+
+        if ($categoryCounts->isEmpty()) {
+            return collect();
+        }
+
+        $topCount = $categoryCounts->max();
+
+        return $categoryCounts
+            ->filter(fn ($count) => $count === $topCount)
+            ->keys()
+            ->values();
     }
 }

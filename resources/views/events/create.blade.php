@@ -38,7 +38,7 @@
 <div class="create-event-page">
     <a href="{{ route('events.index') }}" class="btn-back-link">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        Retour
+        {{ __('app.back') }}
     </a>
 
     <div class="card create-event-card">
@@ -58,12 +58,12 @@
 
             <div>
                 <label>{{ __('app.event_title') }} *</label>
-                <input type="text" name="titre" value="{{ old('titre') }}" maxlength="100" required placeholder="Nom de l'événement">
+                <input type="text" name="titre" value="{{ old('titre') }}" maxlength="100" required placeholder="{{ __('app.event_name_placeholder') }}">
             </div>
 
             <div>
                 <label>{{ __('app.event_description') }}</label>
-                <textarea name="description" maxlength="2000" placeholder="Décris ton événement, ce qui est prévu, ce qu'il faut apporter…">{{ old('description') }}</textarea>
+                <textarea name="description" maxlength="2000" placeholder="{{ __('app.event_desc_placeholder') }}">{{ old('description') }}</textarea>
             </div>
 
             <div class="form-row-2">
@@ -79,19 +79,19 @@
 
             <div>
                 <label>{{ __('app.event_location') }}</label>
-                <input type="text" name="lieu" value="{{ old('lieu') }}" maxlength="200" placeholder="Ex. Salle A-201, Campus, Parc Laurier…">
+                <input type="text" name="lieu" value="{{ old('lieu') }}" maxlength="200" placeholder="{{ __('app.event_location_placeholder') }}">
             </div>
 
             <div class="form-row-2">
                 <div>
                     <label>{{ __('app.event_max') }}</label>
-                    <input type="number" name="max_participants" value="{{ old('max_participants') }}" min="2" placeholder="Illimité">
-                    <div class="help-text">Laisse vide pour illimité</div>
+                    <input type="number" name="max_participants" value="{{ old('max_participants') }}" min="2" placeholder="{{ __('app.event_unlimited') }}">
+                    <div class="help-text">{{ __('app.event_unlimited_hint') }}</div>
                 </div>
                 <div>
                     <label>{{ __('app.event_price') }}</label>
                     <input type="number" name="prix" value="{{ old('prix', '0') }}" min="0" step="0.01" placeholder="0.00">
-                    <div class="help-text">0 = gratuit</div>
+                    <div class="help-text">{{ __('app.event_free_hint') }}</div>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@
                 <div>
                     <label>{{ __('app.event_group') }} <span style="color:rgba(255,255,255,0.5);font-weight:400;">(optionnel)</span></label>
                     <select name="group_id">
-                        <option value="">— Événement personnel —</option>
+                        <option value="">{{ __('app.event_personal') }}</option>
                         @foreach($myGroups as $group)
                             <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>{{ $group->nom }}</option>
                         @endforeach
@@ -114,27 +114,27 @@
                         <input type="radio" name="type_acces" value="public" {{ old('type_acces', 'public') === 'public' ? 'checked' : '' }}>
                         <div>
                             <div class="access-option-label">🌐 {{ __('app.event_public') }}</div>
-                            <div class="access-option-desc">N'importe qui peut rejoindre directement.</div>
+                            <div class="access-option-desc">{{ __('app.event_public_desc') }}</div>
                         </div>
                     </label>
                     <label class="access-option">
                         <input type="radio" name="type_acces" value="sur_demande" {{ old('type_acces') === 'sur_demande' ? 'checked' : '' }}>
                         <div>
                             <div class="access-option-label">📋 {{ __('app.event_on_request') }}</div>
-                            <div class="access-option-desc">Visible, mais les participants doivent être approuvés.</div>
+                            <div class="access-option-desc">{{ __('app.event_on_request_desc') }}</div>
                         </div>
                     </label>
                     <label class="access-option">
                         <input type="radio" name="type_acces" value="prive" {{ old('type_acces') === 'prive' ? 'checked' : '' }}>
                         <div>
                             <div class="access-option-label">🔒 {{ __('app.event_private') }}</div>
-                            <div class="access-option-desc">Seulement visible et accessible aux invités.</div>
+                            <div class="access-option-desc">{{ __('app.event_private_desc') }}</div>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">Créer l'événement</button>
+            <button type="submit" class="btn-submit">{{ __('app.event_create_btn') }}</button>
         </form>
     </div>
 </div>

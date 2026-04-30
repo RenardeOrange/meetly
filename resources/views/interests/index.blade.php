@@ -1,31 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Mes intérêts')
+@section('title', __('app.my_interests'))
 
 @section('styles')
 <style>
     .interests-page { display: grid; gap: 1.5rem; max-width: 860px; margin: 0 auto; }
 
-    /* ── Panels ── */
     .panel { padding: 1.4rem; }
     .panel-title { color: #fff; font-size: 1.05rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.65rem; }
     .panel-title .count-badge { font-size: 0.76rem; font-weight: 600; background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.75); padding: 0.2rem 0.55rem; border-radius: 999px; }
     .empty-copy { color: rgba(255,255,255,0.6); font-size: 0.86rem; }
 
-    /* ── My interests chips ── */
     .interest-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .interest-chip-remove { display: inline-flex; align-items: center; gap: 0.32rem; padding: 0.38rem 0.5rem 0.38rem 0.78rem; border-radius: 999px; background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; }
     .chip-rm-btn { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 0.68rem; padding: 0; line-height: 1; transition: background 0.15s; flex-shrink: 0; }
     .chip-rm-btn:hover { background: rgba(231,76,60,0.65); color: #fff; }
+    .chip-rm-btn:disabled { opacity: 0.6; cursor: wait; }
 
-    /* ── Search bar ── */
     .search-row { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
     .search-row input { flex: 1; padding: 0.8rem 1rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.86rem; }
     .search-row input::placeholder { color: rgba(255,255,255,0.45); }
     .btn-reset-search { border: none; border-radius: 999px; padding: 0.75rem 1.2rem; background: rgba(255,255,255,0.14); color: #fff; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
     .btn-reset-search:hover { background: rgba(255,255,255,0.22); }
 
-    /* ── Collapsible category blocks ── */
     .cat-block { border-radius: 16px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 0.7rem; }
     .cat-block:last-child { margin-bottom: 0; }
     .cat-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; background: none; border: none; color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; gap: 0.5rem; }
@@ -36,17 +33,18 @@
     .cat-body { display: none; padding: 0 0.9rem 0.9rem; }
     .cat-block.open > .cat-body { display: block; }
 
-    /* ── Interest items ── */
     .interest-items { display: grid; gap: 0.5rem; }
-    .interest-item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.7rem 0.85rem; border-radius: 12px; background: rgba(255,255,255,0.06); transition: background 0.15s; }
+    .interest-item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.7rem 0.85rem; border-radius: 12px; background: rgba(255,255,255,0.06); transition: background 0.15s, opacity 0.15s; }
     .interest-item.item-hidden { display: none; }
+    .interest-item.is-busy { opacity: 0.72; }
     .interest-item-name { color: #fff; font-size: 0.84rem; font-weight: 500; }
     .interest-item-name.is-mine { color: #2ecc71; }
     .toggle-btn { border: none; border-radius: 999px; padding: 0.38rem 0.85rem; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .toggle-btn.btn-remove { background: rgba(231,76,60,0.16); color: #e74c3c; border: 1px solid rgba(231,76,60,0.32); }
-    .toggle-btn.btn-add    { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.18); }
+    .toggle-btn.btn-add { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.18); }
     .toggle-btn.btn-remove:hover { background: rgba(231,76,60,0.28); }
-    .toggle-btn.btn-add:hover    { background: rgba(255,255,255,0.2); }
+    .toggle-btn.btn-add:hover { background: rgba(255,255,255,0.2); }
+    .toggle-btn:disabled { opacity: 0.6; cursor: wait; }
 
     .no-results-msg { color: rgba(255,255,255,0.55); font-size: 0.86rem; padding: 0.5rem 0 0.25rem; display: none; }
 </style>
@@ -54,41 +52,32 @@
 
 @section('content')
 <div class="interests-page">
-
-    {{-- ── My interests ── --}}
     <div class="card panel">
         <div class="panel-title">
-            Mes intérêts
-            <span class="count-badge">{{ $userInterets->count() }}</span>
+            {{ __('app.my_interests') }}
+            <span class="count-badge" id="myInterestCount">{{ $userInterets->count() }}</span>
         </div>
 
-        @if ($userInterets->isNotEmpty())
-            <div class="interest-chips" id="myChips">
-                @foreach ($userInterets->sortBy(fn ($i) => $i->categorie . '|' . $i->nom) as $interet)
-                    <div class="interest-chip-remove" data-interet-id="{{ $interet->id }}">
-                        <span>{{ $interet->nom }}</span>
-                        <form method="POST" action="{{ route('interets.toggle') }}" style="margin:0;display:contents;">
-                            @csrf
-                            <input type="hidden" name="interet_id" value="{{ $interet->id }}">
-                            <button type="submit" class="chip-rm-btn" title="Retirer">✕</button>
-                        </form>
-                    </div>
-                @endforeach
-            </div>
-        @else
-            <p class="empty-copy" id="emptyMsg">Aucun intérêt sélectionné pour le moment. Explore le catalogue ci-dessous pour en ajouter.</p>
-        @endif
+        <div class="interest-chips" id="myChips">
+            @foreach ($userInterets->sortBy(fn ($i) => $i->categorie . '|' . $i->nom) as $interet)
+                <div class="interest-chip-remove" data-interet-id="{{ $interet->id }}" data-name="{{ $interet->nom }}">
+                    <span>{{ $interet->nom }}</span>
+                    <button type="button" class="chip-rm-btn" data-interet-id="{{ $interet->id }}" title="{{ __('app.remove_interest') }}">x</button>
+                </div>
+            @endforeach
+        </div>
+
+        <p class="empty-copy" id="emptyMsg" style="{{ $userInterets->isNotEmpty() ? 'display:none;' : '' }}">{{ __('app.no_interests_selected') }}</p>
     </div>
 
-    {{-- ── Catalogue ── --}}
     <div class="card panel">
-        <div class="panel-title">Catalogue d'intérêts</div>
+        <div class="panel-title">{{ __('app.interests_catalog') }}</div>
 
         <div class="search-row">
-            <input type="text" id="catalogSearch" placeholder="Rechercher un intérêt…" autocomplete="off">
-            <button type="button" class="btn-reset-search" id="resetSearch">Effacer</button>
+            <input type="text" id="catalogSearch" placeholder="{{ __('app.search_interest') }}" autocomplete="off">
+            <button type="button" class="btn-reset-search" id="resetSearch">{{ __('app.clear_btn') }}</button>
         </div>
-        <div class="no-results-msg" id="noResults">Aucun intérêt trouvé pour cette recherche.</div>
+        <div class="no-results-msg" id="noResults">{{ __('app.no_interests_found') }}</div>
 
         @foreach ($interets as $categorie => $liste)
             <div class="cat-block" data-cat="{{ $loop->index }}">
@@ -105,13 +94,9 @@
                             @php $mine = in_array($interet->id, $userInteretIds, true); @endphp
                             <div class="interest-item" data-name="{{ mb_strtolower($interet->nom) }}" data-id="{{ $interet->id }}">
                                 <span class="interest-item-name {{ $mine ? 'is-mine' : '' }}">{{ $interet->nom }}</span>
-                                <form method="POST" action="{{ route('interets.toggle') }}" style="margin:0;">
-                                    @csrf
-                                    <input type="hidden" name="interet_id" value="{{ $interet->id }}">
-                                    <button type="submit" class="toggle-btn {{ $mine ? 'btn-remove' : 'btn-add' }}">
-                                        {{ $mine ? '− Retirer' : '+ Ajouter' }}
-                                    </button>
-                                </form>
+                                <button type="button" class="toggle-btn {{ $mine ? 'btn-remove' : 'btn-add' }}" data-toggle-interest>
+                                    {{ $mine ? __('app.remove_interest') : __('app.add_interest') }}
+                                </button>
                             </div>
                         @endforeach
                     </div>
@@ -124,42 +109,48 @@
 
 @section('scripts')
 <script>
-    // ── Collapsible categories ──
-    document.querySelectorAll('.cat-toggle').forEach(btn => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const toggleRoute = '{{ route("interets.toggle") }}';
+    const myChips = document.getElementById('myChips');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const countBadge = document.getElementById('myInterestCount');
+
+    document.querySelectorAll('.cat-toggle').forEach((btn) => {
         btn.addEventListener('click', function () {
             this.closest('.cat-block').classList.toggle('open');
         });
     });
 
-    // ── Client-side search ──
-    const searchInput  = document.getElementById('catalogSearch');
-    const resetBtn     = document.getElementById('resetSearch');
-    const noResults    = document.getElementById('noResults');
+    const searchInput = document.getElementById('catalogSearch');
+    const resetBtn = document.getElementById('resetSearch');
+    const noResults = document.getElementById('noResults');
 
     function filterCatalog() {
         const q = searchInput.value.trim().toLowerCase();
         let totalVisible = 0;
 
-        document.querySelectorAll('.cat-block').forEach(cat => {
+        document.querySelectorAll('.cat-block').forEach((cat) => {
             const items = cat.querySelectorAll('.interest-item');
             let catVisible = 0;
 
-            items.forEach(item => {
-                const name  = item.dataset.name || '';
+            items.forEach((item) => {
+                const name = item.dataset.name || '';
                 const match = q === '' || name.includes(q);
                 item.classList.toggle('item-hidden', !match);
-                if (match) catVisible++;
+                if (match) {
+                    catVisible++;
+                }
             });
 
-            // Auto-expand matching categories while searching
             if (q !== '') {
                 cat.classList.toggle('open', catVisible > 0);
             }
+
             cat.style.display = catVisible === 0 && q !== '' ? 'none' : '';
             totalVisible += catVisible;
         });
 
-        noResults.style.display = (totalVisible === 0 && q !== '') ? 'block' : 'none';
+        noResults.style.display = totalVisible === 0 && q !== '' ? 'block' : 'none';
     }
 
     searchInput.addEventListener('input', filterCatalog);
@@ -167,8 +158,128 @@
     resetBtn.addEventListener('click', () => {
         searchInput.value = '';
         filterCatalog();
-        document.querySelectorAll('.cat-block').forEach(c => c.classList.remove('open'));
+        document.querySelectorAll('.cat-block').forEach((cat) => cat.classList.remove('open'));
         searchInput.focus();
     });
+
+    function updateCount(delta) {
+        if (!countBadge) {
+            return;
+        }
+
+        countBadge.textContent = String(Math.max(0, parseInt(countBadge.textContent || '0', 10) + delta));
+    }
+
+    function ensureEmptyState() {
+        emptyMsg.style.display = myChips.querySelector('.interest-chip-remove') ? 'none' : '';
+    }
+
+    function addChip(id, name) {
+        if (myChips.querySelector(`.interest-chip-remove[data-interet-id="${id}"]`)) {
+            return;
+        }
+
+        const chip = document.createElement('div');
+        chip.className = 'interest-chip-remove';
+        chip.dataset.interetId = id;
+        chip.dataset.name = name;
+        chip.innerHTML = `<span>${name}</span><button type="button" class="chip-rm-btn" data-interet-id="${id}" title="{{ __('app.remove_interest') }}">x</button>`;
+        myChips.appendChild(chip);
+        updateCount(1);
+        ensureEmptyState();
+    }
+
+    function removeChip(id) {
+        const chip = myChips.querySelector(`.interest-chip-remove[data-interet-id="${id}"]`);
+        if (!chip) {
+            return;
+        }
+
+        chip.remove();
+        updateCount(-1);
+        ensureEmptyState();
+    }
+
+    function syncInterestState(id, isSelected) {
+        const item = document.querySelector(`.interest-item[data-id="${id}"]`);
+        if (!item) {
+            return;
+        }
+
+        const name = item.querySelector('.interest-item-name');
+        const button = item.querySelector('[data-toggle-interest]');
+
+        name?.classList.toggle('is-mine', isSelected);
+
+        if (button) {
+            button.classList.toggle('btn-remove', isSelected);
+            button.classList.toggle('btn-add', !isSelected);
+            button.textContent = isSelected ? "{{ __('app.remove_interest') }}" : "{{ __('app.add_interest') }}";
+        }
+    }
+
+    async function toggleInterest(id, trigger) {
+        const item = document.querySelector(`.interest-item[data-id="${id}"]`);
+        if (item) {
+            item.classList.add('is-busy');
+        }
+        trigger.disabled = true;
+
+        try {
+            const response = await fetch(toggleRoute, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ interet_id: id }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Toggle failed.');
+            }
+
+            const added = data.status === 'added';
+            const name = item?.querySelector('.interest-item-name')?.textContent?.trim()
+                || myChips.querySelector(`.interest-chip-remove[data-interet-id="${id}"]`)?.dataset.name
+                || '';
+
+            syncInterestState(id, added);
+
+            if (added) {
+                addChip(id, name);
+            } else {
+                removeChip(id);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            if (item) {
+                item.classList.remove('is-busy');
+            }
+            trigger.disabled = false;
+        }
+    }
+
+    document.addEventListener('click', (event) => {
+        const toggleButton = event.target.closest('[data-toggle-interest]');
+        if (toggleButton) {
+            const item = toggleButton.closest('.interest-item');
+            if (item) {
+                toggleInterest(item.dataset.id, toggleButton);
+            }
+            return;
+        }
+
+        const chipButton = event.target.closest('.chip-rm-btn[data-interet-id]');
+        if (chipButton) {
+            toggleInterest(chipButton.dataset.interetId, chipButton);
+        }
+    });
+
+    ensureEmptyState();
 </script>
 @endsection

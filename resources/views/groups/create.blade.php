@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Créer un groupe')
+@section('title', __('app.group_create'))
 
 @section('styles')
 <style>
@@ -34,29 +34,29 @@
 
 @section('content')
 <div class="create-page">
-    <div class="create-title">Créer un groupe</div>
+    <div class="create-title">{{ __('app.group_create') }}</div>
 
     <form class="form-card" method="POST" action="{{ route('groups.store') }}" enctype="multipart/form-data">
         @csrf
 
         <div class="field">
-            <label>Nom du groupe *</label>
-            <input type="text" name="nom" value="{{ old('nom') }}" placeholder="Ex: Amateurs de café, Club photo…" maxlength="60" required>
+            <label>{{ __('app.group_name_label') }}</label>
+            <input type="text" name="nom" value="{{ old('nom') }}" placeholder="{{ __('app.group_name_example') }}" maxlength="60" required>
             @error('nom')<div class="field-error">{{ $message }}</div>@enderror
         </div>
 
         <div class="field">
-            <label>Description</label>
-            <textarea name="description" placeholder="De quoi parle votre groupe?" maxlength="500">{{ old('description') }}</textarea>
+            <label>{{ __('app.group_desc_label') }}</label>
+            <textarea name="description" placeholder="{{ __('app.group_what_about') }}" maxlength="500">{{ old('description') }}</textarea>
         </div>
 
         <div class="field">
-            <label>Photo du groupe</label>
+            <label>{{ __('app.group_photo') }}</label>
             <input type="file" name="avatar" accept="image/*">
         </div>
 
         <div class="field">
-            <label>Intérêts du groupe</label>
+            <label>{{ __('app.group_interests') }}</label>
             <div class="interest-grid">
                 @foreach($interets as $categorie => $liste)
                     <span class="categ-label">{{ $categorie }}</span>
@@ -73,8 +73,8 @@
         <div class="field">
             <div class="toggle-row">
                 <div>
-                    <span>Groupe public</span><br>
-                    <small>Les autres utilisateurs pourront le trouver et le rejoindre</small>
+                    <span>{{ __('app.group_public_toggle') }}</span><br>
+                    <small>{{ __('app.group_public_desc') }}</small>
                 </div>
                 <label class="toggle">
                     <input type="checkbox" name="est_public" value="1" {{ old('est_public') ? 'checked' : '' }}>
@@ -83,7 +83,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn-submit">Créer le groupe</button>
+        <button type="submit" class="btn-submit">{{ __('app.create_group_btn') }}</button>
     </form>
 </div>
 @endsection

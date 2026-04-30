@@ -283,6 +283,16 @@
             animation: shakeError 0.4s ease;
             text-align: center;
         }
+        .success-message {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid rgba(46, 204, 113, 0.45);
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
 
         @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
@@ -350,6 +360,12 @@
         @if ($errors->any())
             <div class="error-message">
                 {{ $errors->first() }}
+            </div>
+        @endif
+
+        @if (session('status'))
+            <div class="success-message">
+                {{ session('status') }}
             </div>
         @endif
 
